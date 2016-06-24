@@ -26,12 +26,15 @@ import java.util.ArrayList;
 public class Meetings_Page extends AppCompatActivity {
 
 
-    private Button backButton;
+    private Button backButton, createButton;
     private ListView list;
     private TextView dataTitle;
     private String module;
     public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
+    public final static String EXTRA_MESSAGE2 = "com.example.malik.meetingstest.MESSAGE2";
+    public final static String EXTRA_MESSAGE3 = "com.example.malik.meetingstest.MESSAGE3";
+    public String dailyIP = "http://192.168.1.40";
 
 
     @Override
@@ -46,6 +49,7 @@ public class Meetings_Page extends AppCompatActivity {
         module = (String) dataTitle.getText();
 
         final ArrayList<String> values = new ArrayList<String>();
+        final ArrayList<String> dates = new ArrayList<String>();
 
         list = (ListView) findViewById(R.id.listView);
         String data = getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE);
@@ -88,7 +92,7 @@ public class Meetings_Page extends AppCompatActivity {
                 for (int i = 0; i < dataArray.length(); i++) {
                     JSONObject obj = (JSONObject) dataArray.get(i);
                     values.add(obj.getString("parent_name"));
-
+                    dates.add(obj.getString("date_start"));
                     ids.add(obj.getString("id"));
 
                 }
@@ -148,16 +152,27 @@ public class Meetings_Page extends AppCompatActivity {
             }
         });
 
+        createButton = (Button) findViewById(R.id.createButton);
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent gotoCreate = new Intent(Meetings_Page.this, CreationScreen.class);
+                gotoCreate.putExtra(EXTRA_MESSAGE3,dataTitle.getText());
+                startActivity(gotoCreate);
+            }
+        });
+
     }
 
     private void goMain() {
         finish();
     }
 
-    private void displayResult(String content, String module){
+    private void displayResult(String content, String module,String idNum){
         Intent gotoResult = new Intent(this, AccountResult.class);
         gotoResult.putExtra(EXTRA_MESSAGE, content);
         gotoResult.putExtra(EXTRA_MESSAGE1,module);
+        gotoResult.putExtra(EXTRA_MESSAGE2, idNum);
         startActivity(gotoResult);
     }
 
@@ -176,7 +191,7 @@ public class Meetings_Page extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             try {
-                URL url = new URL("http://192.168.1.38/suiteRest/Api/V8/module/"+ module +"/"+params[0]);
+                URL url = new URL(dailyIP+"/suiteRest/Api/V8/module/"+ module +"/"+params[0]+"?XDEBUG_SESSION_START=PHPSTORM");
                 HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
                 suiteConnection.setRequestMethod("GET");
 
@@ -245,7 +260,7 @@ public class Meetings_Page extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            displayResult(content, module);
+            displayResult(content, module, result);
         }
 
 

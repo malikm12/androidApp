@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.PublicKey;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private Button accountsButton, contactsButton, meetingsButton;
     public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
+    public String dailyIP = "http://192.168.1.40";
 
 
 
@@ -85,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             try {
-                URL url = new URL("http://192.168.1.38/suiteRest/Api/V8/module/"+params[0]);
+                URL url = new URL(dailyIP+"/suiteRest/Api/V8/module/"+params[0]+"?XDEBUG_SESSION_START=PHPSTORM");
                 HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
                 suiteConnection.setRequestMethod("GET");
 

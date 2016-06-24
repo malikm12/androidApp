@@ -31,27 +31,34 @@
         android:textAlignment="textStart"
         android:layout_toRightOf="@+id/moduleView"
         android:layout_toEndOf="@+id/moduleView"
-        android:ellipsize="end" />
+        android:ellipsize="end"
+        android:textColor="#000000" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Back"
         android:id="@+id/backButton"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/gMapsButton"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:textColor="#ffffff"
+        android:background="#3C8DBC" />
 
-    <TextView
+    <EditText
         android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/headerView"
+        android:text="informationPanel"
+        android:enabled="false"
+        android:focusable="true"
+        android:textColor="#000000"
+        android:editable="true"
         android:layout_below="@+id/headerTitle"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:text="informationPanel"
-        android:autoLink="web" />
+        android:clickable="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -62,7 +69,8 @@
         android:layout_below="@+id/titleViewer"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:paddingTop="20dp" />
+        android:paddingTop="20dp"
+        android:textColor="#000000" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -70,7 +78,9 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="infoHeader"
         android:id="@+id/textView2"
-        android:layout_below="@+id/imageView"
+        android:textColor="#000000"
+        android:paddingTop="20dp"
+        android:layout_alignTop="@+id/bonusView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -108,7 +118,8 @@
         android:layout_above="@+id/headerTitle"
         android:layout_alignRight="@+id/headerView"
         android:layout_alignEnd="@+id/headerView"
-        android:text="Title" />
+        android:text="Title"
+        android:textColor="#000000" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -117,7 +128,8 @@
         android:id="@+id/bonusView"
         android:layout_below="@+id/contactTitle"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:textColor="#000000" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -126,25 +138,67 @@
         android:id="@+id/contactTitle"
         android:layout_below="@+id/headerView"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:textColor="#000000" />
 
     <ScrollView
         android:layout_width="wrap_content"
-        android:layout_height="200dp"
+        android:layout_height="160dp"
         android:id="@+id/scrollView"
         android:layout_below="@+id/textView2"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:focusable="false">
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="This field contains information about the Account"
-            android:id="@+id/infoViewer"
-            android:textAlignment="gravity"
-            android:gravity="left"
-            android:layout_below="@+id/textView2"
-            android:layout_alignEnd="@+id/imageView" />
     </ScrollView>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/playAudio"
+        android:layout_alignTop="@+id/imageButton"
+        android:layout_toRightOf="@+id/imageButton"
+        android:layout_toEndOf="@+id/imageButton"
+        android:src="@android:drawable/ic_lock_silent_mode_off" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update"
+        android:id="@+id/updateButton"
+        android:background="#3C8DBC"
+        android:textColor="#ffffff"
+        android:layout_alignTop="@+id/backButton"
+        android:layout_alignLeft="@+id/imageView"
+        android:layout_alignStart="@+id/imageView"
+        android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit"
+        android:id="@+id/editButton"
+        android:background="#3C8DBC"
+        android:textColor="#ffffff"
+        android:layout_alignTop="@+id/updateButton"
+        android:layout_toRightOf="@+id/imageButton"
+        android:layout_toEndOf="@+id/imageButton" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="This field contains information about the Account"
+        android:id="@+id/infoViewer"
+        android:textAlignment="gravity"
+        android:gravity="left"
+        android:enabled="false"
+        android:editable="true"
+        android:textColor="#000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_alignTop="@+id/scrollView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

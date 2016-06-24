@@ -18,7 +18,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".Meetings_Page" />
-        <activity android:name=".AccountResult"></activity>
+        <activity
+            android:name=".AccountResult"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".CreationScreen"></activity>
     </application>
 
 </manifest>

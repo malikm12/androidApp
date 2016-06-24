@@ -35,5 +35,18 @@
         android:id="@+id/backButton"
         android:layout_below="@+id/listView"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:background="#3C8DBC"
+        android:textColor="#ffffff" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create +"
+        android:id="@+id/createButton"
+        android:layout_alignBottom="@+id/backButton"
+        android:layout_alignRight="@+id/listView"
+        android:layout_alignEnd="@+id/listView"
+        android:background="#3C8DBC"
+        android:textColor="#ffffff" />
 </RelativeLayout>
