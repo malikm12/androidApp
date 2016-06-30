@@ -33,14 +33,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Account:"
-                android:id="@+id/accountLabel"
+                android:id="@+id/field1"
                 android:layout_gravity="top" />
 
             <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/accountEditable" />
+                android:id="@+id/editable1" />
 
         </TableRow>
 
@@ -52,13 +51,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Subject:"
-                android:id="@+id/subjectLabel" />
+                android:id="@+id/field2" />
 
             <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/subjectEditable" />
+                android:id="@+id/editable2" />
         </TableRow>
 
         <TableRow
@@ -69,13 +67,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Contact:"
-                android:id="@+id/contactLabel" />
+                android:id="@+id/field3" />
 
             <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/contactEditable" />
+                android:id="@+id/editable3" />
         </TableRow>
 
         <TableRow
@@ -86,15 +83,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Date:"
-                android:id="@+id/dateLabel" />
+                android:id="@+id/field4" />
 
             <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="date"
                 android:ems="10"
-                android:id="@+id/dateEditable" />
+                android:id="@+id/editable4" />
 
         </TableRow>
 
@@ -106,15 +101,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Time"
-                android:id="@+id/timeLabel" />
+                android:id="@+id/field5" />
 
             <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="time"
                 android:ems="10"
-                android:id="@+id/timeEditable" />
+                android:id="@+id/editable5" />
         </TableRow>
 
         <TableRow

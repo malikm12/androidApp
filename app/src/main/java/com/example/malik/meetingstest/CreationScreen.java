@@ -27,9 +27,9 @@ import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 public class CreationScreen extends AppCompatActivity {
 
     private Button backButton, createButton;
-    private EditText accountEditable,subjectEditable,contactEditable,dateEditable,timeEditable;
-    private TextView createScreenLabel;
-    public String dailyIP = "http://192.168.1.40";
+    private EditText editable1,editable2,editable3,editable4,editable5;
+    private TextView createScreenLabel,field1, field2, field3, field4, field5;
+    public String dailyIP = "http://192.168.1.56";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +39,42 @@ public class CreationScreen extends AppCompatActivity {
 
             createScreenLabel = (TextView)findViewById(R.id.createScreenLabel);
             createScreenLabel.setText(getIntent().getStringExtra(Meetings_Page.EXTRA_MESSAGE3));
-            accountEditable = (EditText)findViewById(R.id.accountEditable);
-            subjectEditable = (EditText)findViewById(R.id.subjectEditable);
-            contactEditable = (EditText)findViewById(R.id.contactEditable);
-            dateEditable = (EditText)findViewById(R.id.dateEditable);
-            timeEditable = (EditText)findViewById(R.id.timeEditable);
+
+            field1 = (TextView) findViewById(R.id.field1);
+            field2 = (TextView) findViewById(R.id.field2);
+            field3 = (TextView) findViewById(R.id.field3);
+            field4 = (TextView) findViewById(R.id.field4);
+            field5 = (TextView) findViewById(R.id.field5);
+
+            if (createScreenLabel.getText().toString().equals("Accounts")){
+                field1.setText("Name");
+                field2.setText("Phone");
+                field3.setText("Website");
+                field4.setText("Industry");
+                field5.setText("Country");
+            }
+
+            if (createScreenLabel.getText().toString().equals("Contacts")) {
+                field1.setText("Name");
+                field2.setText("Account");
+                field3.setText("Title");
+                field4.setText("Phone");
+                field5.setText("");
+            }
+
+            if (createScreenLabel.getText().toString().equals("Meetings")) {
+                field1.setText("Account");
+                field2.setText("Date");
+                field3.setText("Time");
+                field4.setText("Contact");
+                field5.setText("Location");
+            }
+
+            editable1 = (EditText)findViewById(R.id.editable1);
+            editable2 = (EditText)findViewById(R.id.editable2);
+            editable3 = (EditText)findViewById(R.id.editable3);
+            editable4 = (EditText)findViewById(R.id.editable4);
+            editable5 = (EditText)findViewById(R.id.editable5);
 
             backButton = (Button) findViewById(R.id.backButton);
             backButton.setOnClickListener(new View.OnClickListener() {
@@ -72,10 +103,22 @@ public class CreationScreen extends AppCompatActivity {
         finish();
     }
 
+    private String [] splitter(String name){
+         String nameArray [] = name.split(" ");
+
+        return nameArray;
+    }
+
     private class AsyncRestRequest extends AsyncTask<String,String,String> {
 
         String module = createScreenLabel.getText().toString();
-        String name = accountEditable.getText().toString();
+        String name = editable1.getText().toString();
+        String info2 = editable2.getText().toString();
+        String info3 = editable3.getText().toString();
+        String info4 = editable4.getText().toString();
+        String info5 = editable5.getText().toString();
+        String firstName = splitter(name)[0];
+        String surname = splitter(name)[1];
 
         @Override
         protected String doInBackground(String... params) {
@@ -85,11 +128,29 @@ public class CreationScreen extends AppCompatActivity {
                 HttpClient httpclient = new DefaultHttpClient();
                 // 2. make POST request to the given URL
                 HttpPost httpPOST = new
-                        HttpPost(dailyIP+"/suiteRest/Api/V8/module/" + module +"/");
-                String json = "";
+                        HttpPost(dailyIP+"/suiteRest/Api/V8/module/" + module);
+                String json;
                 // 3. build jsonObject
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("name",name);
+
+                if(module.equals("Accounts")){
+                    jsonObject.put("name",name);
+                    jsonObject.put ("phone_office",info2);
+                    jsonObject.put("website",info3);
+                    jsonObject.put("industry", info4);
+                    jsonObject.put("billing_address_country",info5);
+                }
+
+                if(module.equals("Meetings")){
+                    jsonObject.put("parent_name",name);
+                    jsonObject.put ("description",info2);
+                }
+                if (module.equals("Contacts")) {
+                    jsonObject.put("first_name", firstName);
+                    jsonObject.put("last_name", surname);
+                }
+
+
 
 
                 // 4. convert JSONObject to JSON to String
@@ -104,6 +165,7 @@ public class CreationScreen extends AppCompatActivity {
                 httpPOST.setHeader("Content-type", "application/json");
                 // 8. Execute POST request to the given URL
                 HttpResponse httpResponse = httpclient.execute(httpPOST);
+                System.out.println(httpResponse);
                 // 9. receive response as inputStream
                 //                  inputStream = httpResponse.getEntity().getContent();
                 //                  // 10. convert inputstream to string

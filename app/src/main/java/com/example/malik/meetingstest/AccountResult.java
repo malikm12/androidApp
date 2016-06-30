@@ -50,7 +50,7 @@ public class AccountResult extends AppCompatActivity {
     private Button backButton,updateButton, editButton;
     private ImageButton gMapsButton, playAudio;
     private TextView infoViewer, titleViewer, headerView, moduleView, headerTitle, bonusView, textView2, contactTitle;
-    private String words,body = "", moduleTitle,parentID = "", dailyIP = "http://192.168.1.40";
+    private String words,body = "", moduleTitle,parentID = "", dailyIP = "http://192.168.1.56";
 
 
     @Override
@@ -193,8 +193,13 @@ public class AccountResult extends AppCompatActivity {
         gMapsButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v){
-                NewDataRequest mapLocation = new NewDataRequest();
-                mapLocation.execute(parentID);
+                if (moduleTitle.equals("Meetings")) {
+                    NewDataRequest mapLocation = new NewDataRequest();
+                    mapLocation.execute(parentID);
+                }
+                else {
+                    onMap(infoViewer.getText().toString());
+                }
             }
         });
 

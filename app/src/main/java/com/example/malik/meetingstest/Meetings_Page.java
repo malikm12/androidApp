@@ -34,7 +34,8 @@ public class Meetings_Page extends AppCompatActivity {
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
     public final static String EXTRA_MESSAGE2 = "com.example.malik.meetingstest.MESSAGE2";
     public final static String EXTRA_MESSAGE3 = "com.example.malik.meetingstest.MESSAGE3";
-    public String dailyIP = "http://192.168.1.40";
+    public String dailyIP = "http://192.168.1.56";
+
 
 
     @Override
@@ -49,7 +50,7 @@ public class Meetings_Page extends AppCompatActivity {
         module = (String) dataTitle.getText();
 
         final ArrayList<String> values = new ArrayList<String>();
-        final ArrayList<String> dates = new ArrayList<String>();
+
 
         list = (ListView) findViewById(R.id.listView);
         String data = getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE);
@@ -92,7 +93,6 @@ public class Meetings_Page extends AppCompatActivity {
                 for (int i = 0; i < dataArray.length(); i++) {
                     JSONObject obj = (JSONObject) dataArray.get(i);
                     values.add(obj.getString("parent_name"));
-                    dates.add(obj.getString("date_start"));
                     ids.add(obj.getString("id"));
 
                 }
@@ -161,6 +161,15 @@ public class Meetings_Page extends AppCompatActivity {
                 startActivity(gotoCreate);
             }
         });
+
+       // createButton.setClickable(false);
+
+        //if (dataTitle.getText().toString().equals("Contacts")){
+        //    createButton.setClickable(true);
+        //}
+       // else if (dataTitle.getText().toString().equals("Meetings")){
+         //   createButton.setClickable(true);
+       // }
 
     }
 
