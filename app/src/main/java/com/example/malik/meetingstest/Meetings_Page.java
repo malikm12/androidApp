@@ -34,7 +34,7 @@ public class Meetings_Page extends AppCompatActivity {
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
     public final static String EXTRA_MESSAGE2 = "com.example.malik.meetingstest.MESSAGE2";
     public final static String EXTRA_MESSAGE3 = "com.example.malik.meetingstest.MESSAGE3";
-    public String dailyIP = "http://192.168.1.56";
+    public String dailyIP = "http://192.168.1.40";
 
 
 

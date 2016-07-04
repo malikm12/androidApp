@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton btnMic;
     public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
-    public String dailyIP = "http://192.168.1.56";
+    public String dailyIP = "http://192.168.1.40";
     private final int SPEECH_RECOGNITION_CODE = 1;
 
 

@@ -10,7 +10,7 @@
     tools:context="com.example.malik.meetingstest.MainActivity">
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/accountsButton"
         android:id="@+id/accountsButton"
@@ -18,12 +18,12 @@
         android:textColor="#ffffff"
         android:layout_marginTop="82dp"
         android:layout_below="@+id/imageView2"
-        android:layout_alignLeft="@+id/contactsButton"
-        android:layout_alignStart="@+id/contactsButton"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginBottom="20dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Contacts"
         android:id="@+id/contactsButton"
@@ -34,7 +34,7 @@
         android:layout_marginBottom="20dp" />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Meetings"
         android:id="@+id/meetingsButton"
@@ -46,7 +46,7 @@
 
     <Button
         style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Opportunities"
         android:id="@+id/button2"
@@ -71,6 +71,7 @@
         android:src="@android:drawable/ic_btn_speak_now"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:background="#3C8DBC" />
 
 </RelativeLayout>

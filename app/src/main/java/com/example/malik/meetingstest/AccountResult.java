@@ -2,6 +2,7 @@ package com.example.malik.meetingstest;
 
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.net.Uri;
@@ -16,7 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
+import android.widget.Toast;
 
 
 import org.json.JSONArray;
@@ -47,10 +48,12 @@ import cz.msebera.android.httpclient.message.BasicNameValuePair;
 
 public class AccountResult extends AppCompatActivity {
 
-    private Button backButton,updateButton, editButton;
+    private Button backButton,updateButton, editButton, deleteButton;
     private ImageButton gMapsButton, playAudio;
     private TextView infoViewer, titleViewer, headerView, moduleView, headerTitle, bonusView, textView2, contactTitle;
-    private String words,body = "", moduleTitle,parentID = "", dailyIP = "http://192.168.1.56";
+    private String words,body = "", moduleTitle,parentID = "", dailyIP = "http://192.168.1.40";
+    public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
+    public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
 
 
     @Override
@@ -108,6 +111,17 @@ public class AccountResult extends AppCompatActivity {
                 UpdateDataRequest update = new UpdateDataRequest();
                 update.execute();
 
+            }
+        });
+
+        deleteButton = (Button) findViewById(R.id.deleteButton);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UpdateDelete delete = new UpdateDelete();
+                delete.execute();
+                AsyncRestRequest getAccounts = new AsyncRestRequest();
+                getAccounts.execute(moduleTitle);
             }
         });
 
@@ -218,6 +232,14 @@ public class AccountResult extends AppCompatActivity {
         Uri mapsIntentUri = Uri.parse("geo:0,0?q=".concat(location));
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapsIntentUri);
         startActivity(mapIntent);
+    }
+
+    private void displayData(String title, String data){
+        Intent dataDisplayIntent = new Intent(this,Meetings_Page.class);
+
+        dataDisplayIntent.putExtra(EXTRA_MESSAGE, data);
+        dataDisplayIntent.putExtra(EXTRA_MESSAGE1,title);
+        startActivity(dataDisplayIntent);
     }
 
 
@@ -334,15 +356,8 @@ public class AccountResult extends AppCompatActivity {
                 httpPUT.setHeader("Content-type", "application/json");
                 // 8. Execute POST request to the given URL
                 HttpResponse httpResponse = httpclient.execute(httpPUT);
-                // 9. receive response as inputStream
-                //                  inputStream = httpResponse.getEntity().getContent();
-                //                  // 10. convert inputstream to string
-                //                  if(inputStream != null)
-                //                      result = convertInputStreamToString(inputStream);
-                //                  else
-                //                      result = "Did not work!";
 
-                   }
+            }
 
             catch (Exception e) {
                 e.printStackTrace();
@@ -355,6 +370,162 @@ public class AccountResult extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
 
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+
+
+        }
+
+
+        @Override
+        protected void onProgressUpdate(String... text) {
+
+
+        }
+    }
+
+
+    private class UpdateDelete extends AsyncTask<String,String,String> {
+
+        String idNum = getIntent().getStringExtra(Meetings_Page.EXTRA_MESSAGE2);
+        String module = getIntent().getStringExtra(Meetings_Page.EXTRA_MESSAGE1);
+        String deleteID = "1";
+        int responseCode;
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+
+                // 1. create HttpClient
+                HttpClient httpclient = new DefaultHttpClient();
+                // 2. make POST request to the given URL
+                HttpPut httpPUT = new
+                        HttpPut(dailyIP+"/suiteRest/Api/V8/module/" + module +"/" + idNum);
+                String json = "";
+                // 3. build jsonObject
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("deleted", deleteID);
+                // 4. convert JSONObject to JSON to String
+                json = jsonObject.toString();
+
+                // 5. set json to StringEntity
+                StringEntity se = new StringEntity(json);
+                // 6. set httpPost Entity
+                httpPUT.setEntity(se);
+                // 7. Set some headers to inform server about the type of the content
+                httpPUT.setHeader("Accept", "application/json");
+                httpPUT.setHeader("Content-type", "application/json");
+                // 8. Execute POST request to the given URL
+                HttpResponse httpResponse = httpclient.execute(httpPUT);
+                // 9. receive response as inputStream
+                //                  inputStream = httpResponse.getEntity().getContent();
+                //                  // 10. convert inputstream to string
+                //                  if(inputStream != null)
+                //                      result = convertInputStreamToString(inputStream);
+                //                  else
+                //                      result = "Did not work!";
+
+            }
+
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return "";
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            Context context = getApplicationContext();
+            CharSequence text = "Marked for deletion";
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+
+
+        }
+
+
+        @Override
+        protected void onProgressUpdate(String... text) {
+
+
+        }
+    }
+
+    private class AsyncRestRequest extends AsyncTask<String,String,String> {
+
+        String reader = "";
+        String content = "";
+        JSONArray dataChunk = new JSONArray();
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                URL url = new URL(dailyIP+"/suiteRest/Api/V8/module/"+params[0]);
+                HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
+                suiteConnection.setRequestMethod("GET");
+
+                if (suiteConnection.getRequestMethod().equals("GET")){
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(suiteConnection.getInputStream()));
+
+                    String line;
+                    // read from the urlconnection via the bufferedreader
+                    while ((line = bufferedReader.readLine()) != null) {
+
+                        reader += (line + "\n");
+                        // System.out.println(line);
+                    }
+
+                    bufferedReader.close();
+
+                    JSONObject jObject = new JSONObject(reader);
+                    dataChunk = jObject.getJSONArray("data");
+
+                    if (params[0].equals("Accounts")) {
+
+                        for (int i = 0; i <= dataChunk.length(); i++) {
+                            JSONObject requested = dataChunk.getJSONObject(i);
+                            content += requested.getString("name") + "\n";
+                        }
+                    }
+                    else if (params[0].equals("Contacts")){
+                        for (int i = 0; i <= dataChunk.length(); i++) {
+                            JSONObject requested = dataChunk.getJSONObject(i);
+                            content += requested.getString("name") + "\n";
+                        }
+                    }
+                    else if (params[0].equals("Meetings")){
+                        for (int i = 0; i <= dataChunk.length(); i++) {
+                            JSONObject requested = dataChunk.getJSONObject(i);
+                            content += requested.getString("parent_name") + "\n";
+                        }
+                    }
+                }
+            }
+
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return params[0];
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            displayData(result,dataChunk.toString());
         }
 
 

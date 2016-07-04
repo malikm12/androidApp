@@ -1,5 +1,6 @@
 package com.example.malik.meetingstest;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -27,9 +29,9 @@ import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 public class CreationScreen extends AppCompatActivity {
 
     private Button backButton, createButton;
-    private EditText editable1,editable2,editable3,editable4,editable5;
-    private TextView createScreenLabel,field1, field2, field3, field4, field5;
-    public String dailyIP = "http://192.168.1.56";
+    private EditText editable1,editable1_5,editable2,editable3,editable4,editable5;
+    private TextView createScreenLabel,field1,field1_5, field2, field3, field4, field5;
+    public String dailyIP = "http://192.168.1.40";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +43,17 @@ public class CreationScreen extends AppCompatActivity {
             createScreenLabel.setText(getIntent().getStringExtra(Meetings_Page.EXTRA_MESSAGE3));
 
             field1 = (TextView) findViewById(R.id.field1);
+            field1_5 = (TextView) findViewById(R.id.field1_5);
             field2 = (TextView) findViewById(R.id.field2);
             field3 = (TextView) findViewById(R.id.field3);
             field4 = (TextView) findViewById(R.id.field4);
             field5 = (TextView) findViewById(R.id.field5);
+            editable1 = (EditText)findViewById(R.id.editable1);
+            editable1_5=(EditText) findViewById(R.id.editable1_5);
+            editable2 = (EditText)findViewById(R.id.editable2);
+            editable3 = (EditText)findViewById(R.id.editable3);
+            editable4 = (EditText)findViewById(R.id.editable4);
+            editable5 = (EditText)findViewById(R.id.editable5);
 
             if (createScreenLabel.getText().toString().equals("Accounts")){
                 field1.setText("Name");
@@ -52,14 +61,18 @@ public class CreationScreen extends AppCompatActivity {
                 field3.setText("Website");
                 field4.setText("Industry");
                 field5.setText("Country");
+                editable1_5.setEnabled(false);
+
             }
 
             if (createScreenLabel.getText().toString().equals("Contacts")) {
-                field1.setText("Name");
+                field1.setText("First Name");
+                field1_5.setText("Surname");
                 field2.setText("Account");
                 field3.setText("Title");
                 field4.setText("Phone");
                 field5.setText("");
+                editable5.setEnabled(false);
             }
 
             if (createScreenLabel.getText().toString().equals("Meetings")) {
@@ -68,13 +81,9 @@ public class CreationScreen extends AppCompatActivity {
                 field3.setText("Time");
                 field4.setText("Contact");
                 field5.setText("Location");
+                editable1_5.setEnabled(false);
             }
 
-            editable1 = (EditText)findViewById(R.id.editable1);
-            editable2 = (EditText)findViewById(R.id.editable2);
-            editable3 = (EditText)findViewById(R.id.editable3);
-            editable4 = (EditText)findViewById(R.id.editable4);
-            editable5 = (EditText)findViewById(R.id.editable5);
 
             backButton = (Button) findViewById(R.id.backButton);
             backButton.setOnClickListener(new View.OnClickListener() {
@@ -103,22 +112,22 @@ public class CreationScreen extends AppCompatActivity {
         finish();
     }
 
-    private String [] splitter(String name){
-         String nameArray [] = name.split(" ");
-
-        return nameArray;
-    }
+    //private String [] splitter(String name){
+    //     String nameArray [] = name.split(" ");
+    //
+    //      return nameArray;
+    //}
 
     private class AsyncRestRequest extends AsyncTask<String,String,String> {
 
         String module = createScreenLabel.getText().toString();
-        String name = editable1.getText().toString();
+        String firstName = editable1.getText().toString();
+        String surname = editable1_5.getText().toString();
         String info2 = editable2.getText().toString();
         String info3 = editable3.getText().toString();
         String info4 = editable4.getText().toString();
         String info5 = editable5.getText().toString();
-        String firstName = splitter(name)[0];
-        String surname = splitter(name)[1];
+        int responseCode;
 
         @Override
         protected String doInBackground(String... params) {
@@ -134,7 +143,7 @@ public class CreationScreen extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject();
 
                 if(module.equals("Accounts")){
-                    jsonObject.put("name",name);
+                    jsonObject.put("name",firstName);
                     jsonObject.put ("phone_office",info2);
                     jsonObject.put("website",info3);
                     jsonObject.put("industry", info4);
@@ -142,12 +151,15 @@ public class CreationScreen extends AppCompatActivity {
                 }
 
                 if(module.equals("Meetings")){
-                    jsonObject.put("parent_name",name);
+                    jsonObject.put("parent_name",firstName);
                     jsonObject.put ("description",info2);
                 }
                 if (module.equals("Contacts")) {
                     jsonObject.put("first_name", firstName);
                     jsonObject.put("last_name", surname);
+                    jsonObject.put("account_name", info2);
+                    jsonObject.put("title", info3);
+                    jsonObject.put("phone_work", info4);
                 }
 
 
@@ -166,26 +178,38 @@ public class CreationScreen extends AppCompatActivity {
                 // 8. Execute POST request to the given URL
                 HttpResponse httpResponse = httpclient.execute(httpPOST);
                 System.out.println(httpResponse);
-                // 9. receive response as inputStream
-                //                  inputStream = httpResponse.getEntity().getContent();
-                //                  // 10. convert inputstream to string
-                //                  if(inputStream != null)
-                //                      result = convertInputStreamToString(inputStream);
-                //                  else
-                //                      result = "Did not work!";
+                responseCode = httpResponse.getStatusLine().getStatusCode();
+
             }
             catch (Exception e){
                 System.out.println(e);
             }
 
+            String respCode = Integer.toString(responseCode);
 
-
-            return "";
+            return respCode;
         }
 
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(String responseCode) {
+
+            if (responseCode.equals("200")) {
+                Context context = getApplicationContext();
+                CharSequence text = "Succesful creation!";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+            }
+            else{
+                Context context = getApplicationContext();
+                CharSequence text = "Failed to create, please try again!";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+            }
         }
 
 
