@@ -138,6 +138,7 @@ public class Meetings_Page extends AppCompatActivity {
 
 
                hitResult(accountId,module);
+                //finish();
 
             }
 

@@ -78,7 +78,7 @@ public class AccountResult extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goback();
+                finish();
             }
         });
 
@@ -122,6 +122,8 @@ public class AccountResult extends AppCompatActivity {
                 delete.execute();
                 AsyncRestRequest getAccounts = new AsyncRestRequest();
                 getAccounts.execute(moduleTitle);
+                finish();
+                finish();
             }
         });
 
@@ -154,43 +156,47 @@ public class AccountResult extends AppCompatActivity {
             headerTitle.setText("Subject:");
         }
 
-        headerView = (EditText)findViewById(R.id.headerView);
-        headerView.setText(bits[1]);
+        try {
+            headerView = (EditText) findViewById(R.id.headerView);
+            headerView.setText(bits[1]);
 
-        contactTitle = (TextView)findViewById(R.id.contactTitle);
-        if (headerTitle.getText().equals("Subject:")){
-            contactTitle.setText("Contact:");
-        }
-
-        bonusView = (TextView)findViewById(R.id.bonusView);
-        if(headerTitle.getText().equals("Subject:")){
-            bonusView.setText(bits[2]);
-        }
-
-        textView2 = (TextView) findViewById(R.id.textView2);
-        if (moduleTitle.equals("Accounts")){
-            textView2.setText("Address:");
-        }
-        if (moduleTitle.equals("Contacts")){
-            textView2.setText("Address:");
-        }
-        if (moduleTitle.equals("Meetings")){
-            textView2.setText("Notes:");
-        }
-
-        infoViewer = (EditText)findViewById(R.id.infoViewer);
-
-        if(textView2.getText().equals("Address:")){
-            for (int i = 2; i< bits.length; i++){
-                body += bits[i] + "\n";
+            contactTitle = (TextView) findViewById(R.id.contactTitle);
+            if (headerTitle.getText().equals("Subject:")) {
+                contactTitle.setText("Contact:");
             }
-        }
-        else if(textView2.getText().equals("Notes:")){
-            for (int i = 3; i< bits.length-1; i++){
-                body += bits[i] + "\n";
+
+            bonusView = (TextView) findViewById(R.id.bonusView);
+            if (headerTitle.getText().equals("Subject:")) {
+                bonusView.setText(bits[2]);
             }
+
+            textView2 = (TextView) findViewById(R.id.textView2);
+            if (moduleTitle.equals("Accounts")) {
+                textView2.setText("Address:");
+            }
+            if (moduleTitle.equals("Contacts")) {
+                textView2.setText("Address:");
+            }
+            if (moduleTitle.equals("Meetings")) {
+                textView2.setText("Notes:");
+            }
+
+            infoViewer = (EditText) findViewById(R.id.infoViewer);
+
+            if (textView2.getText().equals("Address:")) {
+                for (int i = 2; i < bits.length; i++) {
+                    body += bits[i] + "\n";
+                }
+            } else if (textView2.getText().equals("Notes:")) {
+                for (int i = 3; i < bits.length - 1; i++) {
+                    body += bits[i] + "\n";
+                }
+            }
+            infoViewer.setText(body);
         }
-        infoViewer.setText(body);
+        catch(Exception e){
+            System.out.println(e);
+        }
 
         playAudio = (ImageButton) findViewById(R.id.playAudio);
         playAudio.setOnClickListener(new View.OnClickListener(){
@@ -239,6 +245,7 @@ public class AccountResult extends AppCompatActivity {
 
         dataDisplayIntent.putExtra(EXTRA_MESSAGE, data);
         dataDisplayIntent.putExtra(EXTRA_MESSAGE1,title);
+        dataDisplayIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(dataDisplayIntent);
     }
 
