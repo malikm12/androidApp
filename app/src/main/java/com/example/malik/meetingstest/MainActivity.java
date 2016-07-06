@@ -1,7 +1,10 @@
 package com.example.malik.meetingstest;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.speech.RecognizerIntent;
@@ -9,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -22,19 +26,27 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private Button accountsButton, contactsButton, meetingsButton;
-    private ImageButton btnMic;
+    private ImageButton btnMic, searchButton;
+    private EditText searchField;
     public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
     public String dailyIP = "http://192.168.1.40";
     private final int SPEECH_RECOGNITION_CODE = 1;
+    private boolean isNetworkAvailable(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
+    }
 
 
 
@@ -43,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         accountsButton = (Button) findViewById(R.id.accountsButton);
         accountsButton.setOnClickListener(new View.OnClickListener() {
@@ -71,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        searchField = (EditText) findViewById(R.id.searchField);
+
         btnMic = (ImageButton) findViewById(R.id.btnMic);
         btnMic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +93,32 @@ public class MainActivity extends AppCompatActivity {
                 startSpeechToText();
             }
         });
+
+        searchButton = (ImageButton) findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchRequested search = new searchRequested();
+                search.execute();
+            }
+        });
+
+        if (isNetworkAvailable() == true){
+            Context context = getApplicationContext();
+            CharSequence text = "You are Online";
+            int duration = Toast.LENGTH_LONG;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
+        else{
+            Context context = getApplicationContext();
+            CharSequence text = "You are Offline";
+            int duration = Toast.LENGTH_LONG;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
 
 
     }
@@ -213,6 +254,73 @@ public class MainActivity extends AppCompatActivity {
             }
 
             return params[0];
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            displayData(result,dataChunk.toString());
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+
+
+        }
+
+
+        @Override
+        protected void onProgressUpdate(String... text) {
+
+
+        }
+    }
+
+    private class searchRequested extends AsyncTask<String,String,String> {
+
+        String reader = "";
+        JSONObject dataChunk = new JSONObject();
+        String query = searchField.getText().toString();
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+
+
+                String encodedQuery = URLEncoder.encode(query,"utf-8");
+
+                URL url = new URL(dailyIP+"/suiteRest/Api/V8/search?search_type=basic&query_string="+encodedQuery);
+                HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
+                suiteConnection.setRequestMethod("GET");
+
+                if (suiteConnection.getRequestMethod().equals("GET")){
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(suiteConnection.getInputStream()));
+
+                    String line;
+                    // read from the urlconnection via the bufferedreader
+                    while ((line = bufferedReader.readLine()) != null) {
+
+                        reader += (line + "\n");
+                        // System.out.println(line);
+                    }
+
+                    bufferedReader.close();
+
+                    JSONObject jObject = new JSONObject(reader);
+                    dataChunk = jObject.getJSONObject("data");
+
+                    //ArrayList<SearchResult> searchResults = new ArrayList<SearchResult>();
+
+
+                }
+            }
+
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return "Search Results";
         }
 
 

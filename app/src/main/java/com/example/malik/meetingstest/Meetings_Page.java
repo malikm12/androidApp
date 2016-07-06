@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 
 public class Meetings_Page extends AppCompatActivity {
@@ -42,6 +43,7 @@ public class Meetings_Page extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meetings__page);
+        onRestart();
 
 
         dataTitle = (TextView) findViewById(R.id.dataTitle);
@@ -53,9 +55,10 @@ public class Meetings_Page extends AppCompatActivity {
 
 
         list = (ListView) findViewById(R.id.listView);
-        String data = getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE);
+        final String data = getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE);
 
         final ArrayList<String> ids = new ArrayList<String>();
+        final ArrayList<String> keys = new ArrayList<String >();
 
         if(dataTitle.getText().equals("Accounts")) {
             try {
@@ -101,24 +104,35 @@ public class Meetings_Page extends AppCompatActivity {
                 System.out.println(err.getMessage());
             }
         }
-        else if (dataTitle.getText().equals("Opportunities")){
+        else if (dataTitle.getText().equals("Search Results")) {
             try {
-                JSONArray dataArray = new JSONArray(data);
-                for (int i = 0; i < dataArray.length(); i++) {
-                    JSONObject obj = (JSONObject) dataArray.get(i);
-                    values.add(obj.getString("name"));
+                JSONObject obj = new JSONObject(data);
+                Iterator<String> iter = obj.keys();
+                values.clear();
+                while (iter.hasNext()) {
+                    String key = iter.next();
+                    try {
+                        JSONObject value = (JSONObject)obj.get(key);
+                        JSONArray matches = value.getJSONArray("items");
 
-                    ids.add(obj.getString("id"));
-
+                        for (int i = 0; i<=matches.length();i++){
+                            JSONObject searchName = matches.getJSONObject(i);
+                            values.add(key +": "+ searchName.getString("summary"));
+                            ids.add(searchName.getString("id"));
+                            keys.add(searchName.getString("moduleName"));
+                        }
+                    } catch (JSONException e) {
+                        System.out.println(e);
+                    }
                 }
+            }
+            catch (Exception e){
 
-            } catch (Exception err) {
-                System.out.println(err.getMessage());
             }
         }
 
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, values);
         list.setAdapter(adapter);
         // ListView Item Click Listener
@@ -127,18 +141,29 @@ public class Meetings_Page extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String accountId = "";
+                String mod = "";
+
                 try {
 
                     accountId = ids.get(position);
+                    mod = keys.get(position);
                 }
                 catch(Exception err)
                 {
                     System.out.println(err.getMessage());
                 }
+               try {
+                   if (module.equals("Search Results")){
+                       module = mod;
+                       hitResult(accountId,module);
 
-
-               hitResult(accountId,module);
-                //finish();
+                   }
+                   else {
+                       hitResult(accountId, module);
+                   }
+               }catch (Exception e){
+                   System.out.println(e);
+               }
 
             }
 
@@ -171,6 +196,161 @@ public class Meetings_Page extends AppCompatActivity {
        // else if (dataTitle.getText().toString().equals("Meetings")){
          //   createButton.setClickable(true);
        // }
+
+    }
+
+    public void onRestart(){
+        super.onRestart();
+        dataTitle = (TextView) findViewById(R.id.dataTitle);
+        dataTitle.setText(getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE1));
+
+        module = (String) dataTitle.getText();
+
+        final ArrayList<String> values = new ArrayList<String>();
+
+
+        list = (ListView) findViewById(R.id.listView);
+        final String data = getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE);
+
+        final ArrayList<String> ids = new ArrayList<String>();
+        final ArrayList<String> keys = new ArrayList<String >();
+
+        if(dataTitle.getText().equals("Accounts")) {
+            try {
+                JSONArray dataArray = new JSONArray(data);
+                for (int i = 0; i < dataArray.length(); i++) {
+                    JSONObject obj = (JSONObject) dataArray.get(i);
+                    values.add(obj.getString("name"));
+
+                    ids.add(obj.getString("id"));
+
+                }
+
+            } catch (Exception err) {
+                System.out.println(err.getMessage());
+            }
+        }
+        else if (dataTitle.getText().equals("Contacts")){
+            try {
+                JSONArray dataArray = new JSONArray(data);
+                for (int i = 0; i < dataArray.length(); i++) {
+                    JSONObject obj = (JSONObject) dataArray.get(i);
+                    values.add(obj.getString("name"));
+
+                    ids.add(obj.getString("id"));
+
+                }
+
+            } catch (Exception err) {
+                System.out.println(err.getMessage());
+            }
+        }
+        else if (dataTitle.getText().equals("Meetings")){
+            try {
+                JSONArray dataArray = new JSONArray(data);
+                for (int i = 0; i < dataArray.length(); i++) {
+                    JSONObject obj = (JSONObject) dataArray.get(i);
+                    values.add(obj.getString("parent_name"));
+                    ids.add(obj.getString("id"));
+
+                }
+
+            } catch (Exception err) {
+                System.out.println(err.getMessage());
+            }
+        }
+        else if (dataTitle.getText().equals("Search Results")) {
+            try {
+                JSONObject obj = new JSONObject(data);
+                Iterator<String> iter = obj.keys();
+                values.clear();
+                while (iter.hasNext()) {
+                    String key = iter.next();
+                    try {
+                        JSONObject value = (JSONObject)obj.get(key);
+                        JSONArray matches = value.getJSONArray("items");
+
+                        for (int i = 0; i<=matches.length();i++){
+                            JSONObject searchName = matches.getJSONObject(i);
+                            values.add(key +": "+ searchName.getString("summary"));
+                            ids.add(searchName.getString("id"));
+                            keys.add(searchName.getString("moduleName"));
+                        }
+                    } catch (JSONException e) {
+                        System.out.println(e);
+                    }
+                }
+            }
+            catch (Exception e){
+
+            }
+        }
+
+
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, android.R.id.text1, values);
+        list.setAdapter(adapter);
+        // ListView Item Click Listener
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String accountId = "";
+                String mod = "";
+
+                try {
+
+                    accountId = ids.get(position);
+                    mod = keys.get(position);
+                }
+                catch(Exception err)
+                {
+                    System.out.println(err.getMessage());
+                }
+                try {
+                    if (module.equals("Search Results")){
+                        module = mod;
+                        hitResult(accountId,module);
+
+                    }
+                    else {
+                        hitResult(accountId, module);
+                    }
+                }catch (Exception e){
+                    System.out.println(e);
+                }
+
+            }
+
+        });
+
+
+        backButton = (Button) findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goMain();
+            }
+        });
+
+        createButton = (Button) findViewById(R.id.createButton);
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent gotoCreate = new Intent(Meetings_Page.this, CreationScreen.class);
+                gotoCreate.putExtra(EXTRA_MESSAGE3,dataTitle.getText());
+                startActivity(gotoCreate);
+            }
+        });
+
+        // createButton.setClickable(false);
+
+        //if (dataTitle.getText().toString().equals("Contacts")){
+        //    createButton.setClickable(true);
+        //}
+        // else if (dataTitle.getText().toString().equals("Meetings")){
+        //   createButton.setClickable(true);
+        // }
 
     }
 
@@ -224,6 +404,7 @@ public class Meetings_Page extends AppCompatActivity {
                         if (fields != null) {
                             content += fields.getString("name") + "\n";
                             content += fields.get("website") + "\n";
+                            content += fields.get("phone_office") + "\n";
                             content += fields.getString("billing_address_street") + "\n";
                             content += fields.getString("billing_address_city") + "\n";
                             content += fields.getString("billing_address_state") + "\n";
@@ -238,6 +419,7 @@ public class Meetings_Page extends AppCompatActivity {
                         if (fields!=null) {
                             content += fields.getString("name") + "\n";
                             content += fields.getString("email1") + "\n";
+                            content += fields.getString("phone_work") + "\n";
                             content += fields.getString("primary_address_street") + "\n";
                             content += fields.getString("primary_address_city") + "\n";
                             content += fields.getString("primary_address_state") + "\n";
@@ -255,6 +437,17 @@ public class Meetings_Page extends AppCompatActivity {
                             content += fields.getString("assigned_user_name") + "\n";
                             content += fields.getString("description") + "\n";
                             content += fields.getString("parent_id") + "\n";
+                        }
+                    }
+                    else if (module.equals("Leads")){
+                        JSONObject jObject = new JSONObject(reader);
+                        fields = jObject.getJSONObject("data");
+                        if (fields!=null) {
+                            content += fields.getString("name") + "\n";
+                            content += fields.getString("account_name") + "\n";
+                            content += fields.getString("title") + "\n";
+                            content += fields.getString("phone_work") + "\n";
+                            content += fields.getString("email_addresses_primary") + "\n";
                         }
                     }
                 }

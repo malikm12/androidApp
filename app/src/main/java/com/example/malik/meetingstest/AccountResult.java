@@ -11,6 +11,7 @@ import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.util.Linkify;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -130,73 +131,90 @@ public class AccountResult extends AppCompatActivity {
         moduleTitle = getIntent().getStringExtra(Meetings_Page.EXTRA_MESSAGE1);
 
         moduleView = (TextView)findViewById(R.id.moduleView);
+        titleViewer = (TextView)findViewById(R.id.titleViewer);
+        headerTitle = (TextView)findViewById(R.id.headerTitle);
+        headerView = (EditText) findViewById(R.id.headerView);
+        contactTitle = (TextView) findViewById(R.id.contactTitle);
+        bonusView = (TextView) findViewById(R.id.bonusView);
+        textView2 = (TextView) findViewById(R.id.textView2);
+        infoViewer = (EditText) findViewById(R.id.infoViewer);
+
+        titleViewer.setText(bits[0]);
+        headerView.setText(bits[1]);
 
         if(moduleTitle.equals("Accounts")){
             moduleView.setText("Account Name:");
+            headerTitle.setText("Website");
+            contactTitle.setText("Phone:");
+            bonusView.setText(bits[2]);
+            textView2.setText("Address:");
         }
         else if (moduleTitle.equals("Contacts")){
             moduleView.setText("Contact Name:");
+            headerTitle.setText("Email:");
+            contactTitle.setText("Phone:");
+            bonusView.setText(bits[2]);
+            textView2.setText("Address:");
         }
         else if (moduleTitle.equals("Meetings")){
             moduleView.setText("Meeting:");
-        }
-
-
-        titleViewer = (TextView)findViewById(R.id.titleViewer);
-        titleViewer.setText(bits[0]);
-
-        headerTitle = (TextView)findViewById(R.id.headerTitle);
-        if (moduleView.getText().equals("Account Name:")){
-            headerTitle.setText("Website:");
-        }
-        else if (moduleView.getText().equals("Contact Name:")){
-            headerTitle.setText("Email:");
-        }
-        else if (moduleView.getText().equals("Meeting:")){
             headerTitle.setText("Subject:");
+            contactTitle.setText("Contact:");
+            bonusView.setText(bits[2]);
+            textView2.setText("Notes:");
+        }
+        else if (moduleTitle.equals("Leads")){
+            moduleView.setText("Lead:");
+            headerTitle.setText("Account:");
+            contactTitle.setText("Title");
+            bonusView.setText(bits[2]);
+            textView2.setText("Phone:");
         }
 
-        try {
-            headerView = (EditText) findViewById(R.id.headerView);
-            headerView.setText(bits[1]);
+        if (contactTitle.getText().equals("Phone:")){
+            bonusView.setAutoLinkMask(Linkify.PHONE_NUMBERS);
+            bonusView.setFocusable(false);
+            bonusView.setEnabled(true);
+            bonusView.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick (View v){
+                    Intent diallerIntent = new Intent(Intent.ACTION_DIAL);
+                    diallerIntent.setData(Uri.parse("tel:"+bonusView.getText().toString()));
+                    startActivity(diallerIntent);
+                }
+            });
 
-            contactTitle = (TextView) findViewById(R.id.contactTitle);
-            if (headerTitle.getText().equals("Subject:")) {
-                contactTitle.setText("Contact:");
-            }
+        }
 
-            bonusView = (TextView) findViewById(R.id.bonusView);
-            if (headerTitle.getText().equals("Subject:")) {
-                bonusView.setText(bits[2]);
-            }
-
-            textView2 = (TextView) findViewById(R.id.textView2);
-            if (moduleTitle.equals("Accounts")) {
-                textView2.setText("Address:");
-            }
-            if (moduleTitle.equals("Contacts")) {
-                textView2.setText("Address:");
-            }
-            if (moduleTitle.equals("Meetings")) {
-                textView2.setText("Notes:");
-            }
-
-            infoViewer = (EditText) findViewById(R.id.infoViewer);
-
-            if (textView2.getText().equals("Address:")) {
-                for (int i = 2; i < bits.length; i++) {
+        if (textView2.getText().equals("Address:")) {
+                for (int i = 3; i < bits.length; i++) {
                     body += bits[i] + "\n";
                 }
-            } else if (textView2.getText().equals("Notes:")) {
+        }
+
+        else if (textView2.getText().equals("Notes:")) {
                 for (int i = 3; i < bits.length - 1; i++) {
                     body += bits[i] + "\n";
                 }
-            }
+        }
+
+        else if (textView2.getText().equals("Phone:")) {
+
+            body += bits[3];
+            infoViewer.setAutoLinkMask(Linkify.PHONE_NUMBERS);
+            infoViewer.setFocusable(false);
+            infoViewer.setEnabled(true);
+            infoViewer.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick (View v){
+                        Intent diallerIntent = new Intent(Intent.ACTION_DIAL);
+                        diallerIntent.setData(Uri.parse("tel:"+infoViewer.getText().toString()));
+                        startActivity(diallerIntent);
+                    }
+                });
+
+        }
             infoViewer.setText(body);
-        }
-        catch(Exception e){
-            System.out.println(e);
-        }
 
         playAudio = (ImageButton) findViewById(R.id.playAudio);
         playAudio.setOnClickListener(new View.OnClickListener(){

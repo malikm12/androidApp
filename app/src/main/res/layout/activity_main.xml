@@ -44,18 +44,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp" />
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Opportunities"
-        android:id="@+id/button2"
-        android:background="#3C8DBC"
-        android:textColor="#ffffff"
-        android:layout_below="@+id/meetingsButton"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp" />
-
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -73,5 +61,26 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:background="#3C8DBC" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:id="@+id/searchButton"
+        android:src="@android:drawable/ic_search_category_default"
+        android:background="#3C8DBC"
+        android:layout_below="@+id/meetingsButton"
+        android:layout_alignRight="@+id/meetingsButton"
+        android:layout_alignEnd="@+id/meetingsButton" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:id="@+id/searchField"
+        android:layout_toLeftOf="@+id/searchButton"
+        android:layout_toStartOf="@+id/searchButton"
+        android:layout_alignBottom="@+id/searchButton"
+        android:textColor="#ffffff"
+        android:background="#3C8DBC"
+        android:gravity="center" />
 
 </RelativeLayout>
