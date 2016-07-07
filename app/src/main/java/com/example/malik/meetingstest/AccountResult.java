@@ -52,7 +52,7 @@ public class AccountResult extends AppCompatActivity {
     private Button backButton,updateButton, editButton, deleteButton;
     private ImageButton gMapsButton, playAudio;
     private TextView infoViewer, titleViewer, headerView, moduleView, headerTitle, bonusView, textView2, contactTitle;
-    private String words,body = "", moduleTitle,parentID = "", dailyIP = "http://192.168.1.40";
+    private String words,body = "", moduleTitle,parentID = "", dailyIP = "http://192.168.1.26";
     public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
 

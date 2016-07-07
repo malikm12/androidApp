@@ -21,6 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -40,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchField;
     public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
-    public String dailyIP = "http://192.168.1.40";
+    public String dailyIP = "http://192.168.1.26";
     private final int SPEECH_RECOGNITION_CODE = 1;
     private boolean isNetworkAvailable(){
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -56,7 +58,38 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        String FILENAME = "hello_file";
+        String AccountsFile = "Accounts.txt";
+        String ContactsFile= "Contacts.txt";
+        String MeetingsFile= "Meetings.txt";
+        String string = "hello world!";
+        int n;
 
+
+        try {
+            FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            fos.write(string.getBytes());
+            fos.close();
+        }
+        catch (Exception e){
+            System.out.println(e);
+        }
+
+        try{
+            FileInputStream fis = openFileInput(FILENAME);
+
+            StringBuffer fileContent = new StringBuffer("");
+            byte[] buffer = new byte[1024];
+
+            while ((n = fis.read(buffer)) != -1) {
+                fileContent.append(new String(buffer, 0, n));
+            }
+            fis.close();
+            System.out.println();
+        }
+        catch(Exception e){
+
+        }
         accountsButton = (Button) findViewById(R.id.accountsButton);
         accountsButton.setOnClickListener(new View.OnClickListener() {
             @Override
