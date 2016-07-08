@@ -3,6 +3,9 @@ package com.example.malik.meetingstest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -21,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -51,51 +55,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String FILENAME = "hello_file";
-        String AccountsFile = "Accounts.txt";
-        String ContactsFile= "Contacts.txt";
-        String MeetingsFile= "Meetings.txt";
-        String string = "hello world!";
-        int n;
 
 
-        try {
-            FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-            fos.write(string.getBytes());
-            fos.close();
-        }
-        catch (Exception e){
-            System.out.println(e);
+
+        if(hasDatabaseBeenCreated() == false){
+            createDatabase();
         }
 
-        try{
-            FileInputStream fis = openFileInput(FILENAME);
-
-            StringBuffer fileContent = new StringBuffer("");
-            byte[] buffer = new byte[1024];
-
-            while ((n = fis.read(buffer)) != -1) {
-                fileContent.append(new String(buffer, 0, n));
-            }
-            fis.close();
-            System.out.println();
-        }
-        catch(Exception e){
-
-        }
         accountsButton = (Button) findViewById(R.id.accountsButton);
         accountsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AsyncRestRequest getAccounts = new AsyncRestRequest();
-                getAccounts.execute("Accounts");
+                if(isNetworkAvailable()== false){
+                   try {
+                       SQLiteDatabase mydatabase = openOrCreateDatabase("OfflineStorage",MODE_PRIVATE, null);
+                       Cursor resultSet = mydatabase.rawQuery("Select * from OfflineJson where Type = 'Accounts';", null);
+                       resultSet.moveToFirst();
+                       System.out.println(resultSet.getString(1));
+                       displayData("Accounts", resultSet.getString(1));
+                   }
+                   catch (Exception e){
+                       System.out.println(e);
+                   }
+                }
+                else {
+                    AsyncRestRequest getAccounts = new AsyncRestRequest();
+                    getAccounts.execute("Accounts");
+                }
             }
         });
 
@@ -103,8 +94,22 @@ public class MainActivity extends AppCompatActivity {
         contactsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AsyncRestRequest getcontacts = new AsyncRestRequest();
-                getcontacts.execute("Contacts");
+                if(isNetworkAvailable()== false){
+                    try {
+                        SQLiteDatabase mydatabase = openOrCreateDatabase("OfflineStorage", MODE_PRIVATE, null);
+                        Cursor resultSet = mydatabase.rawQuery("Select * from OfflineJson where Type = 'Contacts';", null);
+                        resultSet.moveToFirst();
+                        System.out.println(resultSet.getString(1));
+                        displayData("Contacts", resultSet.getString(1));
+                    }
+                    catch (Exception e){
+                        System.out.println(e);
+                    }
+                }
+                else {
+                    AsyncRestRequest getContacts = new AsyncRestRequest();
+                    getContacts.execute("Contacts");
+                }
             }
         });
 
@@ -112,21 +117,26 @@ public class MainActivity extends AppCompatActivity {
         meetingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AsyncRestRequest getMeetings = new AsyncRestRequest();
-                getMeetings.execute("Meetings");
+                if(isNetworkAvailable()== false){
+                    try {
+                        SQLiteDatabase mydatabase = openOrCreateDatabase("OfflineStorage",MODE_PRIVATE, null);
+                        Cursor resultSet = mydatabase.rawQuery("Select * from OfflineJson where Type = 'Meetings';", null);
+                        resultSet.moveToFirst();
+                        System.out.println(resultSet.getString(1));
+                        displayData("Meetings", resultSet.getString(1));
+                    }
+                    catch (Exception e){
+                        System.out.println(e);
+                    }
+                }
+                else {
+                    AsyncRestRequest getMeetings = new AsyncRestRequest();
+                    getMeetings.execute("Meetings");
+                }
             }
         });
 
         searchField = (EditText) findViewById(R.id.searchField);
-
-        btnMic = (ImageButton) findViewById(R.id.btnMic);
-        btnMic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startSpeechToText();
-            }
-        });
-
         searchButton = (ImageButton) findViewById(R.id.searchButton);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,15 +146,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnMic = (ImageButton) findViewById(R.id.btnMic);
+        btnMic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startSpeechToText();
+            }
+        });
+
         if (isNetworkAvailable() == true){
+
             Context context = getApplicationContext();
-            CharSequence text = "You are Online";
+            CharSequence text = "Online";
             int duration = Toast.LENGTH_LONG;
 
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
         }
-        else{
+        else {
             Context context = getApplicationContext();
             CharSequence text = "You are Offline";
             int duration = Toast.LENGTH_LONG;
@@ -152,11 +171,7 @@ public class MainActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
         }
-
-
     }
-
-
 
     private void displayData(String title, String data){
         Intent dataDisplayIntent = new Intent(this,Meetings_Page.class);
@@ -239,6 +254,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... params) {
+            //Check if online
+                //If online
+                //Else, load from database
             try {
                 URL url = new URL(dailyIP+"/suiteRest/Api/V8/module/"+params[0]);
                 HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
@@ -261,6 +279,9 @@ public class MainActivity extends AppCompatActivity {
                     dataChunk = jObject.getJSONArray("data");
 
                     if (params[0].equals("Accounts")) {
+                        //Persists to the sqlite database
+
+                        updateDatabase("Accounts",dataChunk.toString());
 
                         for (int i = 0; i <= dataChunk.length(); i++) {
                             JSONObject requested = dataChunk.getJSONObject(i);
@@ -268,12 +289,14 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     else if (params[0].equals("Contacts")){
+                        updateDatabase("Contacts",dataChunk.toString());
                         for (int i = 0; i <= dataChunk.length(); i++) {
                             JSONObject requested = dataChunk.getJSONObject(i);
                             content += requested.getString("name") + "\n";
                         }
                     }
                     else if (params[0].equals("Meetings")){
+                        updateDatabase("Meetings",dataChunk.toString());
                         for (int i = 0; i <= dataChunk.length(); i++) {
                             JSONObject requested = dataChunk.getJSONObject(i);
                             content += requested.getString("parent_name") + "\n";
@@ -292,6 +315,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
+
             displayData(result,dataChunk.toString());
         }
 
@@ -343,7 +367,6 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject jObject = new JSONObject(reader);
                     dataChunk = jObject.getJSONObject("data");
 
-                    //ArrayList<SearchResult> searchResults = new ArrayList<SearchResult>();
 
 
                 }
@@ -374,6 +397,42 @@ public class MainActivity extends AppCompatActivity {
         protected void onProgressUpdate(String... text) {
 
 
+        }
+    }
+    public boolean hasDatabaseBeenCreated() {
+        //http://stackoverflow.com/a/17846791
+        File dbFile = this.getDatabasePath("OfflineStorage");
+        return dbFile.exists();
+    }
+    public void updateDatabase(String module, String json) {
+        SQLiteDatabase mydatabase = openOrCreateDatabase("OfflineStorage", android.content.Context.MODE_PRIVATE, null);
+        String query = "UPDATE OfflineJson SET Json = '"+json+"' where type = '"+module+"';";
+        mydatabase.execSQL(query);
+        mydatabase.close();
+
+    }
+
+    public void createDatabase(){
+        SQLiteDatabase mydatabase = openOrCreateDatabase("OfflineStorage", MODE_PRIVATE, null);
+        try {
+            mydatabase.execSQL("CREATE TABLE IF NOT EXISTS OfflineJson(Type VARCHAR,Json VARCHAR);");
+            mydatabase.execSQL("INSERT INTO OfflineJson VALUES('Accounts','[]');");
+            mydatabase.execSQL("INSERT INTO OfflineJson VALUES('Contacts','[]');");
+            mydatabase.execSQL("INSERT INTO OfflineJson VALUES('Meetings','[]');");
+
+        }catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
+    public void dropTable(){
+        try {
+            SQLiteDatabase mydatabase = openOrCreateDatabase("OfflineStorage", MODE_PRIVATE, null);
+            mydatabase.execSQL("DROP TABLE OfflineJson;");
+        }
+        catch(Exception err)
+        {
+            System.err.println(err.getMessage());
         }
     }
 }

@@ -1,6 +1,9 @@
 package com.example.malik.meetingstest;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,6 +39,12 @@ public class Meetings_Page extends AppCompatActivity {
     public final static String EXTRA_MESSAGE2 = "com.example.malik.meetingstest.MESSAGE2";
     public final static String EXTRA_MESSAGE3 = "com.example.malik.meetingstest.MESSAGE3";
     public String dailyIP = "http://192.168.1.26";
+    private boolean isNetworkAvailable(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
+    }
+
 
 
 
@@ -55,7 +64,7 @@ public class Meetings_Page extends AppCompatActivity {
 
 
         list = (ListView) findViewById(R.id.listView);
-        final String data = getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE);
+       final String data = getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE);
 
         final ArrayList<String> ids = new ArrayList<String>();
         final ArrayList<String> keys = new ArrayList<String >();
@@ -367,9 +376,14 @@ public class Meetings_Page extends AppCompatActivity {
     }
 
     private void hitResult(String accountID,String module) {
-        AsyncRestRequest singularCall = new AsyncRestRequest();
-        singularCall.execute(accountID);
-
+        final String data = getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE);
+        if(isNetworkAvailable()==false){
+            displayResult(sortData(data),module,accountID);
+        }
+        else {
+            AsyncRestRequest singularCall = new AsyncRestRequest();
+            singularCall.execute(accountID);
+        }
     }
 
     private class AsyncRestRequest extends AsyncTask<String,String,String> {
@@ -396,8 +410,9 @@ public class Meetings_Page extends AppCompatActivity {
                     }
 
                     bufferedReader.close();
+                    sortData(reader);
 
-                    if (module.equals("Accounts")){
+                    /*if (module.equals("Accounts")){
 
                         JSONObject jObject = new JSONObject(reader);
                         fields = jObject.getJSONObject("data");
@@ -449,7 +464,7 @@ public class Meetings_Page extends AppCompatActivity {
                             content += fields.getString("phone_work") + "\n";
                             content += fields.getString("email_addresses_primary") + "\n";
                         }
-                    }
+                    }*/
                 }
             }
 
@@ -479,6 +494,68 @@ public class Meetings_Page extends AppCompatActivity {
 
 
         }
+    }
+
+    private String sortData (String reader) {
+        String content = "";
+        JSONObject fields;
+
+
+        try {
+            if (module.equals("Accounts")) {
+
+                JSONArray jsonArray = new JSONArray(reader);
+                fields = jsonArray.getJSONObject(0);
+                if (fields != null) {
+                    content += fields.getString("name") + "\n";
+                    content += fields.get("website") + "\n";
+                    content += fields.get("phone_office") + "\n";
+                    content += fields.getString("billing_address_street") + "\n";
+                    content += fields.getString("billing_address_city") + "\n";
+                    content += fields.getString("billing_address_state") + "\n";
+                    content += fields.getString("billing_address_postalcode") + "\n";
+                    content += fields.getString("billing_address_country") + "\n";
+                }
+            } else if (module.equals("Contacts")) {
+                JSONArray jsonArray = new JSONArray(reader);
+                fields = jsonArray.getJSONObject(0);
+                if (fields != null) {
+                    content += fields.getString("name") + "\n";
+                    content += fields.getString("email1") + "\n";
+                    content += fields.getString("phone_work") + "\n";
+                    content += fields.getString("primary_address_street") + "\n";
+                    content += fields.getString("primary_address_city") + "\n";
+                    content += fields.getString("primary_address_state") + "\n";
+                    content += fields.getString("primary_address_postalcode") + "\n";
+                    content += fields.getString("primary_address_country") + "\n";
+                }
+            } else if (module.equals("Meetings")) {
+                JSONArray jsonArray = new JSONArray(reader);
+                fields = jsonArray.getJSONObject(0);
+                if (fields != null) {
+                    content += fields.getString("parent_name") + "\n";
+                    content += fields.getString("name") + "\n";
+                    content += fields.getString("assigned_user_name") + "\n";
+                    content += fields.getString("description") + "\n";
+                    content += fields.getString("parent_id") + "\n";
+                }
+            } else if (module.equals("Leads")) {
+                JSONObject jObject = new JSONObject(reader);
+                fields = jObject.getJSONObject("data");
+                if (fields != null) {
+                    content += fields.getString("name") + "\n";
+                    content += fields.getString("account_name") + "\n";
+                    content += fields.getString("title") + "\n";
+                    content += fields.getString("phone_work") + "\n";
+                    content += fields.getString("email_addresses_primary") + "\n";
+                }
+            }
+        }catch (Exception e){
+            System.out.println(e);
+        }
+        return content;
+
+
     }
 
 }
