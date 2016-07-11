@@ -5,10 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
@@ -18,28 +16,26 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
-
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
+    /**
+     * Declare allvariables to be used in the MainActivity. dailyIP is a variable that changes on a
+     * daily basis to help the development environment. As the CRM is stored in localhost, the
+     * emulator needs to connect to the CRM that has a dynamic IP address. isNetworkAvailable()
+     * is a boolean used to dictate if the system is currently able to access the internet it is
+     * used primarily as a reference for when to enable or disable features.
+     */
 
     private Button accountsButton, contactsButton, meetingsButton;
     private ImageButton btnMic, searchButton;
@@ -54,11 +50,18 @@ public class MainActivity extends AppCompatActivity {
         return activeNetworkInfo != null;
     }
 
+    /**
+     * onCreate contains the instructions that need to be carried out when the activity is loaded.
+     * @param savedInstanceState
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Test to see if a database exists, if not one is created and populated with row name values.
+        //the values assosciated to the rows are instantiated as empty arrays.
 
         if(hasDatabaseBeenCreated() == false){
             createDatabase();
@@ -68,6 +71,17 @@ public class MainActivity extends AppCompatActivity {
         accountsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /**
+                 * If there is no internet connection available the existing database is queried for
+                 * everything from the OfflineJson table where the Type column value is 'Accounts'
+                 * it then moves to the first row in the table and calls the displayData method and
+                 * passes the content of the json column (a JSON Object) as a parameter. If there is
+                 * an internet connection however, getAccounts (an instance of the AsyncRestRequest
+                 * class) is called and the module name is passed through as a parameter.
+                 *
+                 * This comment is applicable to the three main buttons in the GUI (Accounts,Contacts
+                 * and Meetings).
+                 */
                 if(isNetworkAvailable()== false){
                    try {
                        SQLiteDatabase mydatabase = openOrCreateDatabase("OfflineStorage",MODE_PRIVATE, null);
@@ -133,6 +147,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * The searchButton when clicked checks the value in the searchField, if the value is empty
+         * ("") the user will see a Toast explaining that there is no search criteria. If the
+         * searchField is populated search (an instance of SearchRequested) is called passing the
+         * contents of the searchField as the parameters.
+         */
+
 
         searchButton = (ImageButton) findViewById(R.id.searchButton);
         searchButton.setOnClickListener(new View.OnClickListener() {
@@ -153,6 +174,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        /**
+         * If there is no internetr access the searchField and searchButton are disabled and the
+         * searchField is populated with "NOT AVAILABLE OFFLINE".
+         */
+
         searchField = (EditText) findViewById(R.id.searchField);
         if(isNetworkAvailable()==false){
             searchField.setText("NOT AVAILABLE OFFLINE");
@@ -160,6 +187,11 @@ public class MainActivity extends AppCompatActivity {
             searchButton.setEnabled(false);
 
         }
+
+        /**
+         * btnMic represents the microphone bar at the bottom of the screen. It also tests to see
+         */
+
         btnMic = (ImageButton) findViewById(R.id.btnMic);
         btnMic.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -346,9 +346,19 @@ public class Meetings_Page extends AppCompatActivity {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent gotoCreate = new Intent(Meetings_Page.this, CreationScreen.class);
-                gotoCreate.putExtra(EXTRA_MESSAGE3,dataTitle.getText());
-                startActivity(gotoCreate);
+                if(isNetworkAvailable()==false){
+                    Context context = getApplicationContext();
+                    CharSequence text = "Cannot create records in offline mode. Please try again when you have an internet connection.";
+                    int duration = Toast.LENGTH_LONG;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+                else {
+                    Intent gotoCreate = new Intent(Meetings_Page.this, CreationScreen.class);
+                    gotoCreate.putExtra(EXTRA_MESSAGE3, dataTitle.getText());
+                    startActivity(gotoCreate);
+                }
             }
         });
 
