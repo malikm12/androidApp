@@ -5,12 +5,17 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.View;
 import android.view.WindowManager;
@@ -19,6 +24,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.text.util.*;
 
 
 import org.json.JSONArray;
@@ -45,6 +51,7 @@ import cz.msebera.android.httpclient.client.methods.HttpPut;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 import cz.msebera.android.httpclient.message.BasicNameValuePair;
+import cz.msebera.android.httpclient.util.TextUtils;
 
 
 public class AccountResult extends AppCompatActivity {
@@ -52,9 +59,14 @@ public class AccountResult extends AppCompatActivity {
     private Button backButton,updateButton, editButton, deleteButton;
     private ImageButton gMapsButton, playAudio;
     private TextView infoViewer, titleViewer, headerView, moduleView, headerTitle, bonusView, textView2, contactTitle;
-    private String words,body = "", moduleTitle,parentID = "", dailyIP = "http://192.168.1.26";
+    private String words,body = "", moduleTitle,parentID = "", dailyIP = "http://192.168.1.38";
     public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
+    private boolean isNetworkAvailable(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
+    }
 
 
     @Override
@@ -74,6 +86,23 @@ public class AccountResult extends AppCompatActivity {
         });
         ttobj.setLanguage(Locale.UK);
 
+        //http://blog.danlew.net/2015/12/14/making-edittexts-with-links-both-clickable-and-editable/
+        moduleTitle = getIntent().getStringExtra(Meetings_Page.EXTRA_MESSAGE1);
+
+        moduleView = (TextView)findViewById(R.id.moduleView);
+        titleViewer = (TextView)findViewById(R.id.titleViewer);
+        headerTitle = (TextView)findViewById(R.id.headerTitle);
+        headerView = (EditText) findViewById(R.id.headerView);
+        //headerView.setMovementMethod(LinkMovementMethod.getInstance());
+        //Spannable spannable = new SpannableString(headerView.getText().toString());
+        //Linkify.addLinks(spannable, Linkify.WEB_URLS);
+        //CharSequence  text = android.text.TextUtils.concat (spannable,"\u200B");
+        //headerView.setText(text);
+        contactTitle = (TextView) findViewById(R.id.contactTitle);
+        bonusView = (TextView) findViewById(R.id.bonusView);
+        textView2 = (TextView) findViewById(R.id.textView2);
+        infoViewer = (EditText) findViewById(R.id.infoViewer);
+
 
         backButton = (Button)findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -87,17 +116,27 @@ public class AccountResult extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                headerView.setEnabled(true);
-                if (moduleTitle.equals("Accounts")){
-                    infoViewer.setEnabled(false);
+                if (isNetworkAvailable()==false){
+                    toaster(null);
                 }
-                else if(moduleTitle.equals("Contacts")){
-                    infoViewer.setEnabled(false);
+                else {
+
+                    headerView.setEnabled(true);
+                    if (moduleTitle.equals("Accounts")) {
+                        infoViewer.setEnabled(false);
+
+                    }
+
+                    else if (moduleTitle.equals("Contacts")) {
+                        infoViewer.setEnabled(false);
+                    }
+
+                    else{
+                        infoViewer.setEnabled(true);
+                        updateButton.setClickable(true);
+                        editButton.setClickable(false);
+                    }
                 }
-                else
-                infoViewer.setEnabled(true);
-                updateButton.setClickable(true);
-                editButton.setClickable(false);
             }
         });
 
@@ -105,12 +144,17 @@ public class AccountResult extends AppCompatActivity {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                headerView.setEnabled(false);
-                infoViewer.setEnabled(false);
-                updateButton.setClickable(false);
-                editButton.setClickable(true);
-                UpdateDataRequest update = new UpdateDataRequest();
-                update.execute();
+                if (isNetworkAvailable()==false){
+                    toaster(null);
+                }
+                else {
+                    headerView.setEnabled(false);
+                    infoViewer.setEnabled(false);
+                    updateButton.setClickable(false);
+                    editButton.setClickable(true);
+                    UpdateDataRequest update = new UpdateDataRequest();
+                    update.execute();
+                }
 
             }
         });
@@ -119,25 +163,20 @@ public class AccountResult extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UpdateDelete delete = new UpdateDelete();
-                delete.execute();
-                AsyncRestRequest getAccounts = new AsyncRestRequest();
-                getAccounts.execute(moduleTitle);
-                finish();
-                finish();
+                if (isNetworkAvailable()==false){
+                    toaster(null);
+                }
+                else {
+                    UpdateDelete delete = new UpdateDelete();
+                    delete.execute();
+                    AsyncRestRequest getAccounts = new AsyncRestRequest();
+                    getAccounts.execute(moduleTitle);
+                    finish();
+                    finish();
+                }
             }
         });
 
-        moduleTitle = getIntent().getStringExtra(Meetings_Page.EXTRA_MESSAGE1);
-
-        moduleView = (TextView)findViewById(R.id.moduleView);
-        titleViewer = (TextView)findViewById(R.id.titleViewer);
-        headerTitle = (TextView)findViewById(R.id.headerTitle);
-        headerView = (EditText) findViewById(R.id.headerView);
-        contactTitle = (TextView) findViewById(R.id.contactTitle);
-        bonusView = (TextView) findViewById(R.id.bonusView);
-        textView2 = (TextView) findViewById(R.id.textView2);
-        infoViewer = (EditText) findViewById(R.id.infoViewer);
 
         titleViewer.setText(bits[0]);
         headerView.setText(bits[1]);
@@ -187,7 +226,7 @@ public class AccountResult extends AppCompatActivity {
         }
 
         if (textView2.getText().equals("Address:")) {
-                for (int i = 3; i < bits.length; i++) {
+                for (int i = 3; i < bits.length-1; i++) {
                     body += bits[i] + "\n";
                 }
         }
@@ -225,31 +264,31 @@ public class AccountResult extends AppCompatActivity {
             }
         });
 
+
         parentID = bits[bits.length-1];
 
         gMapsButton = (ImageButton) findViewById(R.id.gMapsButton);
         gMapsButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v){
-                if (moduleTitle.equals("Meetings")) {
-                    NewDataRequest mapLocation = new NewDataRequest();
-                    mapLocation.execute(parentID);
+                if(isNetworkAvailable()==false){
+                    Context context = getApplicationContext();
+                    CharSequence text = "Maps not available offline";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
                 }
                 else {
-                    onMap(infoViewer.getText().toString());
+                    NewDataRequest mapLocation = new NewDataRequest();
+                    mapLocation.execute(parentID);
                 }
             }
         });
 
 
     }
-    private void goback() {
-        finish();
-    }
-    private void refresh(){
-        finish();
-        startActivity(getIntent());
-    }
+
 
     private void onMap(String location){
 
@@ -278,7 +317,7 @@ public class AccountResult extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             try {
-                URL url = new URL(dailyIP+"/suiteRest/Api/V8/module/Accounts/"+params[0]+"?XDEBUG_SESSION_START=PHPSTORM");
+                URL url = new URL(dailyIP+"/suiteRest/Api/V8/module/Accounts/"+params[0]);
                 HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
                 suiteConnection.setRequestMethod("GET");
 
@@ -301,9 +340,7 @@ public class AccountResult extends AppCompatActivity {
                         if (fields!=null) {
                             content += fields.getString("billing_address_street") + "\n";
                             content += fields.getString("billing_address_city") + "\n";
-                            content += fields.getString("billing_address_state") + "\n";
                             content += fields.getString("billing_address_postalcode") + "\n";
-                            content += fields.getString("billing_address_country") + "\n";
                         }
 
                 }
@@ -348,7 +385,6 @@ public class AccountResult extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             try {
-
                 // 1. create HttpClient
                 HttpClient httpclient = new DefaultHttpClient();
                 // 2. make POST request to the given URL
@@ -365,7 +401,7 @@ public class AccountResult extends AppCompatActivity {
                     jsonObject.put ("website",upateField1);
                 }
                 else if (module.equals("Contacts")){
-                    jsonObject.put("email",upateField1);
+                    jsonObject.put("email1",upateField1);
                 }
 
 
@@ -381,6 +417,7 @@ public class AccountResult extends AppCompatActivity {
                 httpPUT.setHeader("Content-type", "application/json");
                 // 8. Execute POST request to the given URL
                 HttpResponse httpResponse = httpclient.execute(httpPUT);
+                System.out.println(httpResponse.getStatusLine().getStatusCode());
 
             }
 
@@ -566,6 +603,24 @@ public class AccountResult extends AppCompatActivity {
 
 
         }
+    }
+
+    public void toaster (String situation){
+
+        Context context = getApplicationContext();
+        CharSequence text = "Cannot amend record offline!";
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+    }
+
+    private void goback() {
+        finish();
+    }
+    private void refresh(){
+        finish();
+        startActivity(getIntent());
     }
 
 

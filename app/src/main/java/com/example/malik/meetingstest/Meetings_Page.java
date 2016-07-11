@@ -38,7 +38,7 @@ public class Meetings_Page extends AppCompatActivity {
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
     public final static String EXTRA_MESSAGE2 = "com.example.malik.meetingstest.MESSAGE2";
     public final static String EXTRA_MESSAGE3 = "com.example.malik.meetingstest.MESSAGE3";
-    public String dailyIP = "http://192.168.1.26";
+    public String dailyIP = "http://192.168.1.38";
     private boolean isNetworkAvailable(){
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -153,7 +153,6 @@ public class Meetings_Page extends AppCompatActivity {
                 String mod = "";
 
                 try {
-
                     accountId = ids.get(position);
                     mod = keys.get(position);
                 }
@@ -164,11 +163,11 @@ public class Meetings_Page extends AppCompatActivity {
                try {
                    if (module.equals("Search Results")){
                        module = mod;
-                       hitResult(accountId,module);
+                       hitResult(accountId,module,position);
 
                    }
                    else {
-                       hitResult(accountId, module);
+                       hitResult(accountId, module,position);
                    }
                }catch (Exception e){
                    System.out.println(e);
@@ -191,20 +190,21 @@ public class Meetings_Page extends AppCompatActivity {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent gotoCreate = new Intent(Meetings_Page.this, CreationScreen.class);
-                gotoCreate.putExtra(EXTRA_MESSAGE3,dataTitle.getText());
-                startActivity(gotoCreate);
+                if(isNetworkAvailable()==false){
+                    Context context = getApplicationContext();
+                    CharSequence text = "Cannot create records in offline mode. Please try again when you have an internet connection.";
+                    int duration = Toast.LENGTH_LONG;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+                else {
+                    Intent gotoCreate = new Intent(Meetings_Page.this, CreationScreen.class);
+                    gotoCreate.putExtra(EXTRA_MESSAGE3, dataTitle.getText());
+                    startActivity(gotoCreate);
+                }
             }
         });
-
-       // createButton.setClickable(false);
-
-        //if (dataTitle.getText().toString().equals("Contacts")){
-        //    createButton.setClickable(true);
-        //}
-       // else if (dataTitle.getText().toString().equals("Meetings")){
-         //   createButton.setClickable(true);
-       // }
 
     }
 
@@ -319,11 +319,11 @@ public class Meetings_Page extends AppCompatActivity {
                 try {
                     if (module.equals("Search Results")){
                         module = mod;
-                        hitResult(accountId,module);
+                        hitResult(accountId,module,position);
 
                     }
                     else {
-                        hitResult(accountId, module);
+                        hitResult(accountId, module,position);
                     }
                 }catch (Exception e){
                     System.out.println(e);
@@ -375,10 +375,10 @@ public class Meetings_Page extends AppCompatActivity {
         startActivity(gotoResult);
     }
 
-    private void hitResult(String accountID,String module) {
+    private void hitResult(String accountID,String module, int position) {
         final String data = getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE);
         if(isNetworkAvailable()==false){
-            displayResult(sortData(data),module,accountID);
+            displayResult(sortData(data,position),module,accountID);
         }
         else {
             AsyncRestRequest singularCall = new AsyncRestRequest();
@@ -410,9 +410,9 @@ public class Meetings_Page extends AppCompatActivity {
                     }
 
                     bufferedReader.close();
-                    sortData(reader);
+                    //sortData(reader,);
 
-                    /*if (module.equals("Accounts")){
+                    if (module.equals("Accounts")){
 
                         JSONObject jObject = new JSONObject(reader);
                         fields = jObject.getJSONObject("data");
@@ -425,6 +425,7 @@ public class Meetings_Page extends AppCompatActivity {
                             content += fields.getString("billing_address_state") + "\n";
                             content += fields.getString("billing_address_postalcode") + "\n";
                             content += fields.getString("billing_address_country") + "\n";
+                            content += fields.getString("id") + "\n";
                         }
                     }
 
@@ -440,6 +441,7 @@ public class Meetings_Page extends AppCompatActivity {
                             content += fields.getString("primary_address_state") + "\n";
                             content += fields.getString("primary_address_postalcode") + "\n";
                             content += fields.getString("primary_address_country") + "\n";
+                            content += fields.getString("id") + "\n";
                         }
                     }
 
@@ -464,7 +466,7 @@ public class Meetings_Page extends AppCompatActivity {
                             content += fields.getString("phone_work") + "\n";
                             content += fields.getString("email_addresses_primary") + "\n";
                         }
-                    }*/
+                    }
                 }
             }
 
@@ -496,7 +498,7 @@ public class Meetings_Page extends AppCompatActivity {
         }
     }
 
-    private String sortData (String reader) {
+    private String sortData (String reader,int position) {
         String content = "";
         JSONObject fields;
 
@@ -505,7 +507,7 @@ public class Meetings_Page extends AppCompatActivity {
             if (module.equals("Accounts")) {
 
                 JSONArray jsonArray = new JSONArray(reader);
-                fields = jsonArray.getJSONObject(0);
+                fields = jsonArray.getJSONObject(position);
                 if (fields != null) {
                     content += fields.getString("name") + "\n";
                     content += fields.get("website") + "\n";
@@ -515,10 +517,11 @@ public class Meetings_Page extends AppCompatActivity {
                     content += fields.getString("billing_address_state") + "\n";
                     content += fields.getString("billing_address_postalcode") + "\n";
                     content += fields.getString("billing_address_country") + "\n";
+                   // content += fields.getString("id") + "\n";
                 }
             } else if (module.equals("Contacts")) {
                 JSONArray jsonArray = new JSONArray(reader);
-                fields = jsonArray.getJSONObject(0);
+                fields = jsonArray.getJSONObject(position);
                 if (fields != null) {
                     content += fields.getString("name") + "\n";
                     content += fields.getString("email1") + "\n";
@@ -528,10 +531,11 @@ public class Meetings_Page extends AppCompatActivity {
                     content += fields.getString("primary_address_state") + "\n";
                     content += fields.getString("primary_address_postalcode") + "\n";
                     content += fields.getString("primary_address_country") + "\n";
+                   // content += fields.getString("id") + "\n";
                 }
             } else if (module.equals("Meetings")) {
                 JSONArray jsonArray = new JSONArray(reader);
-                fields = jsonArray.getJSONObject(0);
+                fields = jsonArray.getJSONObject(position);
                 if (fields != null) {
                     content += fields.getString("parent_name") + "\n";
                     content += fields.getString("name") + "\n";
@@ -540,8 +544,8 @@ public class Meetings_Page extends AppCompatActivity {
                     content += fields.getString("parent_id") + "\n";
                 }
             } else if (module.equals("Leads")) {
-                JSONObject jObject = new JSONObject(reader);
-                fields = jObject.getJSONObject("data");
+                JSONArray jsonArray = new JSONArray(reader);
+                fields = jsonArray.getJSONObject(position);
                 if (fields != null) {
                     content += fields.getString("name") + "\n";
                     content += fields.getString("account_name") + "\n";

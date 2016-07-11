@@ -31,7 +31,7 @@ public class CreationScreen extends AppCompatActivity {
     private Button backButton, createButton;
     private EditText editable1,editable1_5,editable2,editable3,editable4,editable5;
     private TextView createScreenLabel,field1,field1_5, field2, field3, field4, field5;
-    public String dailyIP = "http://192.168.1.26";
+    public String dailyIP = "http://192.168.1.38";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

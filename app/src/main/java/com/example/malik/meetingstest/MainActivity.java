@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchField;
     public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
-    public String dailyIP = "http://192.168.1.26";
+    public String dailyIP = "http://192.168.1.38";
     private final int SPEECH_RECOGNITION_CODE = 1;
     private boolean isNetworkAvailable(){
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -59,9 +59,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-
 
         if(hasDatabaseBeenCreated() == false){
             createDatabase();
@@ -136,23 +133,51 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        searchField = (EditText) findViewById(R.id.searchField);
+
         searchButton = (ImageButton) findViewById(R.id.searchButton);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                searchRequested search = new searchRequested();
-                search.execute();
+                String query = searchField.getText().toString();
+                if(searchField.getText().toString().equals("")){
+                    Context context = getApplicationContext();
+                    CharSequence text = "No Search value found, please try again";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+                else {
+                    SearchRequested search = new SearchRequested();
+                    search.execute(query);
+                }
             }
         });
+        searchField = (EditText) findViewById(R.id.searchField);
+        if(isNetworkAvailable()==false){
+            searchField.setText("NOT AVAILABLE OFFLINE");
+            searchField.setEnabled(false);
+            searchButton.setEnabled(false);
 
+        }
         btnMic = (ImageButton) findViewById(R.id.btnMic);
         btnMic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startSpeechToText();
+                if (isNetworkAvailable()==false){
+                    Context context = getApplicationContext();
+                    CharSequence text = "No voice support in offline mode";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+                else {
+                    startSpeechToText();
+                }
             }
         });
+
 
         if (isNetworkAvailable() == true){
 
@@ -171,6 +196,24 @@ public class MainActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
         }
+        onRestart();
+    }
+
+    public void onRestart(){
+        super.onRestart();
+
+        searchField = (EditText) findViewById(R.id.searchField);
+        if(isNetworkAvailable()==false){
+            searchField.setText("NOT AVAILABLE OFFLINE");
+            searchField.setEnabled(false);
+            searchButton.setEnabled(false);
+        }
+        else {
+            searchButton.setEnabled(true);
+            searchField.setEnabled(true);
+            searchField.setText("");
+            btnMic.setEnabled(true);
+        }
     }
 
     private void displayData(String title, String data){
@@ -186,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Speak Now");
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Say \"search\" followed by your request.");
 
         try {
             startActivityForResult(intent, SPEECH_RECOGNITION_CODE);
@@ -194,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),
                     "Sorry! Speech recognition is not supported in this device.",
                     Toast.LENGTH_SHORT).show();
+
         }
     }
 
@@ -216,22 +260,23 @@ public class MainActivity extends AppCompatActivity {
     private void command(String words){
 
         String[] s = decompose(words);
+
         AsyncRestRequest restcall = new AsyncRestRequest();
+        SearchRequested searchRequested = new SearchRequested();
+        searchField.setText(s[1]);
 
         if (s[0].equals("accounts")){
-            if(s[1].equals("find")){
-                restcall.execute("Accounts/"+s[2]);
-            }
-            else
-            restcall.execute("Accounts");
-
+                restcall.execute("Accounts");
         }
         else if (s[0].equals("contacts")){
-            //restcall.execute("Contacts");
+            restcall.execute("Contacts");
 
         }
         else if (s[0].equals("meetings")){
-            //restcall.execute("Meetings");
+            restcall.execute("Meetings");
+        }
+        else if (s[0].equals("search")){
+            searchRequested.execute();
         }
     }
 
@@ -334,18 +379,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class searchRequested extends AsyncTask<String,String,String> {
+    private class SearchRequested extends AsyncTask<String,String,String> {
 
         String reader = "";
         JSONObject dataChunk = new JSONObject();
-        String query = searchField.getText().toString();
+        //String query = searchField.getText().toString();
 
         @Override
         protected String doInBackground(String... params) {
             try {
 
 
-                String encodedQuery = URLEncoder.encode(query,"utf-8");
+                String encodedQuery = URLEncoder.encode(params[0],"utf-8");
 
                 URL url = new URL(dailyIP+"/suiteRest/Api/V8/search?search_type=basic&query_string="+encodedQuery);
                 HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
