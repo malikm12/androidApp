@@ -40,7 +40,7 @@ public class AccountResult extends AppCompatActivity {
     private Button backButton,updateButton, editButton, deleteButton;
     private ImageButton gMapsButton, playAudio;
     private TextView infoViewer, titleViewer, headerView, moduleView, headerTitle, bonusView, textView2, contactTitle;
-    private String words,body = "", moduleTitle,parentID = "", dailyIP = "http://192.168.1.38";
+    private String words,body = "", moduleTitle,parentID = "", dailyIP = "http://192.168.1.26";
     public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
     private boolean isNetworkAvailable(){
@@ -67,24 +67,15 @@ public class AccountResult extends AppCompatActivity {
         });
         ttobj.setLanguage(Locale.UK);
 
-        //http://blog.danlew.net/2015/12/14/making-edittexts-with-links-both-clickable-and-editable/
         moduleTitle = getIntent().getStringExtra(Meetings_Page.EXTRA_MESSAGE1);
-
         moduleView = (TextView)findViewById(R.id.moduleView);
         titleViewer = (TextView)findViewById(R.id.titleViewer);
         headerTitle = (TextView)findViewById(R.id.headerTitle);
         headerView = (EditText) findViewById(R.id.headerView);
-        //headerView.setMovementMethod(LinkMovementMethod.getInstance());
-        //Spannable spannable = new SpannableString(headerView.getText().toString());
-        //Linkify.addLinks(spannable, Linkify.WEB_URLS);
-        //CharSequence  text = android.text.TextUtils.concat (spannable,"\u200B");
-        //headerView.setText(text);
         contactTitle = (TextView) findViewById(R.id.contactTitle);
         bonusView = (TextView) findViewById(R.id.bonusView);
         textView2 = (TextView) findViewById(R.id.textView2);
         infoViewer = (EditText) findViewById(R.id.infoViewer);
-
-
         backButton = (Button)findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,7 +83,6 @@ public class AccountResult extends AppCompatActivity {
                 finish();
             }
         });
-
         editButton = (Button) findViewById(R.id.editButton);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -261,8 +251,14 @@ public class AccountResult extends AppCompatActivity {
                     toast.show();
                 }
                 else {
-                    NewDataRequest mapLocation = new NewDataRequest();
-                    mapLocation.execute(parentID);
+                    if (moduleTitle.equals("Contacts")){
+                        NewMapRequest contactMap = new NewMapRequest();
+                        contactMap.execute(parentID);
+                    }
+                    else {
+                        NewDataRequest mapLocation = new NewDataRequest();
+                        mapLocation.execute(parentID);
+                    }
                 }
             }
         });
@@ -298,7 +294,7 @@ public class AccountResult extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             try {
-                URL url = new URL(dailyIP+"/suiteRest/Api/V8/module/Accounts/"+params[0]);
+                URL url = new URL("http://dev.suitecrm.com/maliksInstance/Api/V8/module/Accounts/"+params[0]);
                 HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
                 suiteConnection.setRequestMethod("GET");
 
@@ -354,6 +350,73 @@ public class AccountResult extends AppCompatActivity {
 
         }
     }
+
+    private class NewMapRequest extends AsyncTask<String,String,String> {
+
+        String reader = "";
+        String content = "";
+        JSONObject fields = null;
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                URL url = new URL("http://dev.suitecrm.com/maliksInstance/Api/V8/module/Contacts/"+params[0]);
+                HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
+                suiteConnection.setRequestMethod("GET");
+
+
+                if (suiteConnection.getRequestMethod().equals("GET")){
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(suiteConnection.getInputStream()));
+
+                    String line;
+                    // read from the urlconnection via the bufferedreader
+                    while ((line = bufferedReader.readLine()) != null) {
+
+                        reader += (line + "\n");
+                        // System.out.println(line);
+                    }
+
+                    bufferedReader.close();
+
+                    JSONObject jObject = new JSONObject(reader);
+                    fields = jObject.getJSONObject("data");
+                    if (fields!=null) {
+                        content += fields.getString("primary_address_street") + "\n";
+                        content += fields.getString("primary_address_city") + "\n";
+                        content += fields.getString("primary_address_postalcode") + "\n";
+                    }
+
+                }
+            }
+
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return params[0];
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            onMap(content);
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+
+
+        }
+
+
+        @Override
+        protected void onProgressUpdate(String... text) {
+
+
+        }
+    }
+
 
     private class UpdateDataRequest extends AsyncTask<String,String,String> {
 
@@ -516,7 +579,7 @@ public class AccountResult extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             try {
-                URL url = new URL(dailyIP+"/suiteRest/Api/V8/module/"+params[0]);
+                URL url = new URL("http://dev.suitecrm.com/maliksInstance/Api/V8/module/"+params[0]);
                 HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
                 suiteConnection.setRequestMethod("GET");
 

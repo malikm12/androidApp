@@ -22,13 +22,15 @@ public class CreationScreen extends AppCompatActivity {
     private Button backButton, createButton;
     private EditText editable1,editable1_5,editable2,editable3,editable4,editable5;
     private TextView createScreenLabel,field1,field1_5, field2, field3, field4, field5;
-    public String dailyIP = "http://192.168.1.38";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_creation_screen);
+            /**
+             * Declare all the GUI components and make them reachable by the program
+             */
 
             createScreenLabel = (TextView)findViewById(R.id.createScreenLabel);
             createScreenLabel.setText(getIntent().getStringExtra(Meetings_Page.EXTRA_MESSAGE3));
@@ -45,6 +47,13 @@ public class CreationScreen extends AppCompatActivity {
             editable3 = (EditText)findViewById(R.id.editable3);
             editable4 = (EditText)findViewById(R.id.editable4);
             editable5 = (EditText)findViewById(R.id.editable5);
+
+            /**
+             * Depending on the Title page, populate the labels for each EditText differently.
+             * editable1_5 is only used for the surname entry in the Contact creation screen.
+             * editable5 is not used in contacts but it is in the others. This explains the
+             * setEnabled(false) calls.
+             */
 
             if (createScreenLabel.getText().toString().equals("Accounts")){
                 field1.setText("Name");
@@ -84,13 +93,18 @@ public class CreationScreen extends AppCompatActivity {
                 }
             });
 
+            /**
+             * createButton calls an AsyncRestRequest unique to this page. It is responsible for
+             * a HTTP POST call that places new information on th CRM. It then terminates the
+             * CreationScreen activity and returns the user to the previous activity.
+             */
             createButton = (Button) findViewById(R.id.createButton);
             createButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     AsyncRestRequest created = new AsyncRestRequest();
                     created.execute();
-                    finish();
+                    goMain();
                 }
             });
         }
@@ -99,18 +113,18 @@ public class CreationScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     * goMain is responsible for terminating the current activity and returning the user to the
+     * previous activity in the stack.
+     */
     private void goMain() {
         finish();
     }
 
-    //private String [] splitter(String name){
-    //     String nameArray [] = name.split(" ");
-    //
-    //      return nameArray;
-    //}
-
     private class AsyncRestRequest extends AsyncTask<String,String,String> {
-
+        /**
+         * Declaring all the variables to be used in this class.
+         */
         String module = createScreenLabel.getText().toString();
         String firstName = editable1.getText().toString();
         String surname = editable1_5.getText().toString();
@@ -124,13 +138,23 @@ public class CreationScreen extends AppCompatActivity {
         protected String doInBackground(String... params) {
 
             try {
-                // 1. create HttpClient
+                /**
+                 * Utilises HttpClient instead of HttpURLConnection as is clear on how this works
+                 * could be changed in future for a more uniform looking code. This library was used
+                 * for both PUT and POST calls.
+                 *
+                 * This call creates a JSON Object and populates it with the information submitted
+                 * by the user. This JSON Object is then converted into a String to be stored in the
+                 * request body.StringEntity is how the httpPOST request carries the data.
+                 *
+                 * The httpPOST is then executed and the response code is extracted as to provide
+                 * validation of the result.It is converted to a string and passed to the
+                 * onPostExecute method.
+                 */
                 HttpClient httpclient = new DefaultHttpClient();
-                // 2. make POST request to the given URL
-                HttpPost httpPOST = new
-                        HttpPost(dailyIP+"/suiteRest/Api/V8/module/" + module);
+
+                HttpPost httpPOST = new HttpPost("http://dev.suitecrm.com/maliksInstance/Api/V8/module/" + module);
                 String json;
-                // 3. build jsonObject
                 JSONObject jsonObject = new JSONObject();
 
                 if(module.equals("Accounts")){
@@ -153,22 +177,11 @@ public class CreationScreen extends AppCompatActivity {
                     jsonObject.put("phone_work", info4);
                 }
 
-
-
-
-                // 4. convert JSONObject to JSON to String
                 json = jsonObject.toString();
-
-                // 5. set json to StringEntity
                 StringEntity se = new StringEntity(json);
-                // 6. set httpPost Entity
                 httpPOST.setEntity(se);
-                // 7. Set some headers to inform server about the type of the content
-                httpPOST.setHeader("Accept", "application/json");
-                httpPOST.setHeader("Content-type", "application/json");
-                // 8. Execute POST request to the given URL
+
                 HttpResponse httpResponse = httpclient.execute(httpPOST);
-                System.out.println(httpResponse);
                 responseCode = httpResponse.getStatusLine().getStatusCode();
 
             }
@@ -181,7 +194,15 @@ public class CreationScreen extends AppCompatActivity {
             return respCode;
         }
 
-
+        /**
+         * @param responseCode
+         *
+         * onPostExecute tests the responseCode generated by the httpPOST Request. If a 200 code is
+         * returned, the POST has been successful and a Toast informing the user is generated. If
+         * any other code is returned, it is assumed that the creation failed and the User is
+         * encouraged to try again.
+         *
+         */
         @Override
         protected void onPostExecute(String responseCode) {
 

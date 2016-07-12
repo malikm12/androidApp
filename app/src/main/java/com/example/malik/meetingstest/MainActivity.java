@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchField;
     public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
-    public String dailyIP = "http://192.168.1.38";
+    public String dailyIP = "http://192.168.1.26";
     private final int SPEECH_RECOGNITION_CODE = 1;
     private boolean isNetworkAvailable(){
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * onCreate contains the instructions that need to be carried out when the activity is loaded.
+     * onRestart is a method that refreshes the activity when it is visited from another activity.
      * @param savedInstanceState
      */
 
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         //Test to see if a database exists, if not one is created and populated with row name values.
         //the values assosciated to the rows are instantiated as empty arrays.
@@ -151,9 +153,9 @@ public class MainActivity extends AppCompatActivity {
          * The searchButton when clicked checks the value in the searchField, if the value is empty
          * ("") the user will see a Toast explaining that there is no search criteria. If the
          * searchField is populated search (an instance of SearchRequested) is called passing the
-         * contents of the searchField as the parameters.
+         * contents of the searchField as the parameters.Another toast will be displayed if the
+         * search was unable to find any records that matched the criteria.
          */
-
 
         searchButton = (ImageButton) findViewById(R.id.searchButton);
         searchButton.setOnClickListener(new View.OnClickListener() {
@@ -176,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         /**
-         * If there is no internetr access the searchField and searchButton are disabled and the
+         * If there is no internet access the searchField and searchButton are disabled and the
          * searchField is populated with "NOT AVAILABLE OFFLINE".
          */
 
@@ -189,7 +191,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
-         * btnMic represents the microphone bar at the bottom of the screen. It also tests to see
+         * btnMic represents the microphone bar at the bottom of the screen. It also tests for an
+         * internet connection. If one cannot be found a Toast is shown to the user dictating that
+         * voice is not supported in offline mode. If there is an internet connection, the method
+         * startSpeechToText is called
          */
 
         btnMic = (ImageButton) findViewById(R.id.btnMic);
@@ -210,6 +215,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * This is a simple test for an internet connection that runs despite the user input. This
+         * will inform the user off there connection status, it will use a Toast to inform the user
+         * of their connection status.
+         */
 
         if (isNetworkAvailable() == true){
 
@@ -229,7 +239,14 @@ public class MainActivity extends AppCompatActivity {
             toast.show();
         }
         onRestart();
+
     }
+
+    /**
+     * onRestart restores the default values of the MainActivity. This is done to show the effect of
+     * the page refreshing when the user returns to it. There is no use case where the user would
+     * require existing data on this activity.
+     */
 
     public void onRestart(){
         super.onRestart();
@@ -248,6 +265,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     *
+     * @param title
+     * @param data
+     *
+     * displayData is the method incharge of issuing the intent for moving to the next activity.
+     * displayData passess the module name as the title parameter and the JSON Object or array that
+     * is required for the ListView in the next activity. the .putExtra method allows data to be
+     * passed between intents and this is how data is transfereed between intents/activities in this
+     * application.
+     */
+
     private void displayData(String title, String data){
         Intent dataDisplayIntent = new Intent(this,Meetings_Page.class);
 
@@ -256,12 +285,26 @@ public class MainActivity extends AppCompatActivity {
         startActivity(dataDisplayIntent);
     }
 
+    /**
+     * startSpeechToText is a key method in the speech-to-text translation in this app.This method
+     * provides all the prerequisite conditions for the Speech-to-text activity. This is an android
+     * library that offers this functionality and it utilises Googles speech-to-text engine. This
+     * does mean that it requires an internet connection to be functional.The RecognizerIntent is
+     * a dialogue box that appears to the user that will prompt them to speak.
+     */
+
     private void startSpeechToText() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Say \"search\" followed by your request.");
+
+        /**
+         * startActivityForResult invokes the intent and passes the speechrecognition code as well
+         * as the intent parameters.SPEECH_RECOGNITION_CODE allows onActivity result identify the
+         * correct data.
+         */
 
         try {
             startActivityForResult(intent, SPEECH_RECOGNITION_CODE);
@@ -272,6 +315,17 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+    /**
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     *
+     * onActivityResult retrieves the result from the speech-to-text intent and parses it as an
+     * array list containing Strings called data and stores the data as a String in the first Index.
+     * the command method is then called and the String of spoken words is sent as a parameter.
+     */
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -289,13 +343,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     *
+     * @param words
+     *
+     * command creates a String array out of the String returned from the speech-to-text activity.
+     * to create the String the decompose method is called to split the string into keywords that
+     * are later used in the method. restcall & searchRequested are initialised. The method works by
+     * executing the appropriate task depending on the keyword recognised CREATE A BACKUP OPTION
+     * INCASE THE PHRASE IS NOT UNDERSTOOD.
+     */
+
     private void command(String words){
 
         String[] s = decompose(words);
 
         AsyncRestRequest restcall = new AsyncRestRequest();
         SearchRequested searchRequested = new SearchRequested();
-        searchField.setText(s[1]);
 
         if (s[0].equals("accounts")){
                 restcall.execute("Accounts");
@@ -308,9 +372,17 @@ public class MainActivity extends AppCompatActivity {
             restcall.execute("Meetings");
         }
         else if (s[0].equals("search")){
-            searchRequested.execute();
+            searchRequested.execute(s[1],s[2]);
         }
     }
+
+    /**
+     * @param unfiltered
+     * @return
+     *
+     * Decompose returns a String array that receives a String as input and splits it by ""(space)
+     * as the delimeter. The result is an array filled with single words.
+     */
 
     private String[] decompose(String unfiltered){
         String[] s = unfiltered.split(" ", 0);
@@ -321,7 +393,20 @@ public class MainActivity extends AppCompatActivity {
         return s;
     }
 
-
+    /**
+     * AsyncRestRequest is an embedded class that runs Asynchronously to the main GUI thread,this
+     * class is responsible for the GET request for the data the user wishes to use. It establishes
+     * a connection and then reads the data utilising the bufferedReader and stores the content in
+     * the reader String. Once the data is read the bufferedReader closes and the reader String is
+     * converted into a JSON Object so the "data" JSON Array can be extracted. This contains all the
+     * relevant data that is then processed.If/else statements are used to determine the module and
+     * the SQLite database is then updated as appropriate for offline use.The objects in the JSON
+     * Array are then looped through and the names are extracted and stored in content variable as
+     * a String.
+     *
+     * The onPostExecute method is then invoked and the displayData method is called to start the
+     * new intent leading to the next activity and the relevant data is passed through as a string.
+     */
 
     private class AsyncRestRequest extends AsyncTask<String,String,String> {
 
@@ -331,23 +416,30 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... params) {
-            //Check if online
-                //If online
-                //Else, load from database
+
             try {
-                URL url = new URL(dailyIP+"/suiteRest/Api/V8/module/"+params[0]);
+                /**
+                 * Setting up the connection using HttpURLConnection and establishing the request
+                 * method as 'GET'
+                 */
+                URL url = new URL("http://dev.suitecrm.com/maliksInstance/Api/V8/module/"+params[0]);
                 HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
                 suiteConnection.setRequestMethod("GET");
 
                 if (suiteConnection.getRequestMethod().equals("GET")){
+                    /**
+                     * Creates a bufferedReader that utilises an InputStreamReader containing the
+                     * inputStream from the URL that has been connected to.
+                     */
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(suiteConnection.getInputStream()));
 
                     String line;
-                    // read from the urlconnection via the bufferedreader
+                    /**
+                     * Loops through the bufferedReader storing the line value in the reader String
+                     * one line at a time.
+                     */
                     while ((line = bufferedReader.readLine()) != null) {
-
                         reader += (line + "\n");
-                       // System.out.println(line);
                     }
 
                     bufferedReader.close();
@@ -356,8 +448,10 @@ public class MainActivity extends AppCompatActivity {
                     dataChunk = jObject.getJSONArray("data");
 
                     if (params[0].equals("Accounts")) {
-                        //Persists to the sqlite database
-
+                        /**
+                         * updateDatabase adds the dataChunk data to the SQLite database where the
+                         * Type column is the same as Accounts or whatever the module name is.
+                         */
                         updateDatabase("Accounts",dataChunk.toString());
 
                         for (int i = 0; i <= dataChunk.length(); i++) {
@@ -392,6 +486,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
+            /**
+             * Sends the information from the AsyncRestRequest back into the main GUI thread and
+             * calls the displayData method to initiate the Meetings_Page activity.
+             */
 
             displayData(result,dataChunk.toString());
         }
@@ -400,16 +498,23 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
 
-
         }
-
 
         @Override
         protected void onProgressUpdate(String... text) {
 
-
         }
     }
+
+    /**
+     * Similar to the AsyncRestRequest class, however this class utilises the REST API's search
+     * function. It passes the search request and parameters through the URL. As with the
+     * AsyncRestRequest class it reads the data in and stores it in a String and then creates a JSON
+     * Object.
+     * In the onPostExecute method, it tests to see if the search returned any results. If not,
+     * a toast is generated and the user is informed that there were no matches found. If results
+     * are found, they are passed to the main GUI thread by calling the displayData method.
+     */
 
     private class SearchRequested extends AsyncTask<String,String,String> {
 
@@ -421,10 +526,17 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
             try {
 
-
+                /**
+                 * endodedQuery uses the URLEncoder to correctly format the search query in the URL.
+                 * This simplifies the URL generation and reduces errors.
+                 */
                 String encodedQuery = URLEncoder.encode(params[0],"utf-8");
+                /**
+                 * URL contains the search query unlike the standard GET request
+                 * (search?search_type=basic&query_string="+encodedQuery).
+                 */
 
-                URL url = new URL(dailyIP+"/suiteRest/Api/V8/search?search_type=basic&query_string="+encodedQuery);
+                URL url = new URL("http://dev.suitecrm.com/maliksInstance/Api/V8/search?search_type=basic&query_string="+encodedQuery);
                 HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
                 suiteConnection.setRequestMethod("GET");
 
@@ -432,11 +544,9 @@ public class MainActivity extends AppCompatActivity {
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(suiteConnection.getInputStream()));
 
                     String line;
-                    // read from the urlconnection via the bufferedreader
-                    while ((line = bufferedReader.readLine()) != null) {
 
+                    while ((line = bufferedReader.readLine()) != null) {
                         reader += (line + "\n");
-                        // System.out.println(line);
                     }
 
                     bufferedReader.close();
@@ -456,10 +566,24 @@ public class MainActivity extends AppCompatActivity {
             return "Search Results";
         }
 
-
+        /**
+         * Testing to see if the search returned any results if not a toast is shown to the user.
+         * Otherwise the search results are passed to displayData.
+         * @param result
+         */
         @Override
         protected void onPostExecute(String result) {
-            displayData(result,dataChunk.toString());
+            if(dataChunk.toString().equals("{}")){
+                Context context = getApplicationContext();
+                CharSequence text = "No results found";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+            }
+            else {
+                displayData(result, dataChunk.toString());
+            }
         }
 
 
@@ -476,11 +600,29 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+    /**
+     *@return
+     *
+     * hasDatabaseBeenCreated is a boolean that tests if a database called OfflineStorage already
+     * exists. If an instance of OfflineStorage exists, then it returns true. If there is no
+     * instance of OfflineStorage then it will return false.
+     */
     public boolean hasDatabaseBeenCreated() {
         //http://stackoverflow.com/a/17846791
         File dbFile = this.getDatabasePath("OfflineStorage");
         return dbFile.exists();
     }
+
+    /**
+     * @param module
+     * @param json
+     *
+     * updateDatabase finds and opens OfflineStorage and issues the SQL statement to update the
+     * OfflineJson table. It sets the Json column to the value of the json String passed with the
+     * method where the type column is the same as the module String passed with the method. E.g.
+     * change the value of json where type equals accounts.
+     */
     public void updateDatabase(String module, String json) {
         SQLiteDatabase mydatabase = openOrCreateDatabase("OfflineStorage", android.content.Context.MODE_PRIVATE, null);
         String query = "UPDATE OfflineJson SET Json = '"+json+"' where type = '"+module+"';";
@@ -489,6 +631,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * createDatabase creates a database called OfflineStorage assuming one does not already exist,
+     * it then creates a table called OfflineJson and populates it so that the type columns are
+     * populated and the Json columns contain empty Arrays.
+     */
     public void createDatabase(){
         SQLiteDatabase mydatabase = openOrCreateDatabase("OfflineStorage", MODE_PRIVATE, null);
         try {
@@ -501,6 +648,12 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(e);
         }
     }
+
+    /**
+     * dropTable is never used, but existed as part of development, it was used to eliminate any
+     * incorrect instances of the OfflineJson table. Not used in final product but kept for future
+     * purposes. It simply uses an SQL statement to Drop(Delete) the table.
+     */
 
     public void dropTable(){
         try {

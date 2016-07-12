@@ -26,10 +26,22 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+/**
+ * Meetings_Page displays a ListView populated by information relevant to the user, the items in the
+ * ListView are clickable and lead the user to a result page. Information is passed between activities
+ * via intents. The user can navigate back to the Main activity, to the AccountResult Activity or to
+ * the CreationScreen Activity from this activity.
+ */
+
 
 public class Meetings_Page extends AppCompatActivity {
 
-
+    /**
+     * Declaration of Global variables within the class.
+     * isNetworkAvailable()
+     * is a boolean used to dictate if the system is currently able to access the internet it is
+     * used primarily as a reference for when to enable or disable features.
+     */
     private Button backButton, createButton;
     private ListView list;
     private TextView dataTitle;
@@ -38,14 +50,21 @@ public class Meetings_Page extends AppCompatActivity {
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
     public final static String EXTRA_MESSAGE2 = "com.example.malik.meetingstest.MESSAGE2";
     public final static String EXTRA_MESSAGE3 = "com.example.malik.meetingstest.MESSAGE3";
-    public String dailyIP = "http://192.168.1.38";
     private boolean isNetworkAvailable(){
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null;
     }
 
-
+    /**
+     * onCreate method initialises all the activity components and populates them with the relevant
+     * data.ArrayLists are built to carry and pair information in the list. The list is populated
+     * by looping through the JSON Array and extracting particular objects at each entry of the
+     * JSON Array. For example the JSON Array could contain several records(objects) it would then
+     * loop through and at each object extract an object (e.g."name") and assign it to an array list.
+     * The list then uses an adapter to apply the values in the array with the entries on the list.
+     * @param savedInstanceState
+     */
 
 
     @Override
@@ -144,9 +163,19 @@ public class Meetings_Page extends AppCompatActivity {
             final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, values);
         list.setAdapter(adapter);
-        // ListView Item Click Listener
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
+            /**
+             * setOnItemClickListener is responsible for calling hitResult, that takes the data and
+             * presents it in a new activity.If the result was found through a search result then
+             * key paired with the value in the JSON Object needs to be extracted to pass through as
+             * the module variable.
+             *
+             * @param parent
+             * @param view
+             * @param position
+             * @param id
+             */
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String accountId = "";
@@ -154,7 +183,7 @@ public class Meetings_Page extends AppCompatActivity {
 
                 try {
                     accountId = ids.get(position);
-                    mod = keys.get(position);
+
                 }
                 catch(Exception err)
                 {
@@ -162,6 +191,7 @@ public class Meetings_Page extends AppCompatActivity {
                 }
                try {
                    if (module.equals("Search Results")){
+                       mod = keys.get(position);
                        module = mod;
                        hitResult(accountId,module,position);
 
@@ -186,6 +216,16 @@ public class Meetings_Page extends AppCompatActivity {
             }
         });
 
+        /**
+         * createButton is responsible for opening the CreationScreen Activity. When clicked it
+         * checks for an internet connection and reacts appropriately. No internet connection
+         * results in a Toast Telling the user that creation is not available while offline. If an
+         * internet connection is established but the user is on the Search results Meetings_Page
+         * then another Toast will be tgenerated saying that the user is on an invalid screen and to
+         * make a selection from the home screen in order to create a record. If there is a
+         * connection and the user is on a module Meetings_Page an intent is called to pass the user
+         * to the relevant page.
+         */
         createButton = (Button) findViewById(R.id.createButton);
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,14 +239,28 @@ public class Meetings_Page extends AppCompatActivity {
                     toast.show();
                 }
                 else {
-                    Intent gotoCreate = new Intent(Meetings_Page.this, CreationScreen.class);
-                    gotoCreate.putExtra(EXTRA_MESSAGE3, dataTitle.getText());
-                    startActivity(gotoCreate);
+                    if(dataTitle.getText().toString().equals("Search Results")){
+                        Context context = getApplicationContext();
+                        CharSequence text = "Invalid type selected, please create records through module selection on the home screen";
+                        int duration = Toast.LENGTH_LONG;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    }
+                    else {
+                        Intent gotoCreate = new Intent(Meetings_Page.this, CreationScreen.class);
+                        gotoCreate.putExtra(EXTRA_MESSAGE3, dataTitle.getText());
+                        startActivity(gotoCreate);
+                    }
                 }
             }
         });
 
     }
+
+    /**
+     * Refreshes the defaults of the meetings page to prevent any data being kept over.
+     */
 
     public void onRestart(){
         super.onRestart();
@@ -362,21 +416,26 @@ public class Meetings_Page extends AppCompatActivity {
             }
         });
 
-        // createButton.setClickable(false);
-
-        //if (dataTitle.getText().toString().equals("Contacts")){
-        //    createButton.setClickable(true);
-        //}
-        // else if (dataTitle.getText().toString().equals("Meetings")){
-        //   createButton.setClickable(true);
-        // }
-
     }
+
+    /**
+     * goMain terminates the current Activity and goes to the last in the stack.
+     */
 
     private void goMain() {
         finish();
     }
 
+    /**
+     * displayResult is the method in charge of issuing the intent for moving to the next activity.
+     * displayResult passes the Extracted string as content, the module name as module and the
+     * id number of the records account as idNum. This information is used to display the
+     * appropriate data in the AccountResult Activity.The id number is passed so future calls can
+     * be made on the data in the AccountResult Activity.
+     * @param content
+     * @param module
+     * @param idNum
+     */
     private void displayResult(String content, String module,String idNum){
         Intent gotoResult = new Intent(this, AccountResult.class);
         gotoResult.putExtra(EXTRA_MESSAGE, content);
@@ -384,6 +443,13 @@ public class Meetings_Page extends AppCompatActivity {
         gotoResult.putExtra(EXTRA_MESSAGE2, idNum);
         startActivity(gotoResult);
     }
+
+    /**
+     *
+     * @param accountID
+     * @param module
+     * @param position
+     */
 
     private void hitResult(String accountID,String module, int position) {
         final String data = getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE);
@@ -405,7 +471,8 @@ public class Meetings_Page extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             try {
-                URL url = new URL(dailyIP+"/suiteRest/Api/V8/module/"+ module +"/"+params[0]+"?XDEBUG_SESSION_START=PHPSTORM");
+                URL url = new URL("http://dev.suitecrm.com/maliksInstance/Api/V8/module/"+ module +"/"+params[0]+"?XDEBUG_SESSION_START=PHPSTORM");
+               // http://dev.suitecrm.com/maliksInstance/Api/V8/module/Accounts
                 HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
                 suiteConnection.setRequestMethod("GET");
 
