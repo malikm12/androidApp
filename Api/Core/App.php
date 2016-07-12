@@ -27,7 +27,7 @@ $container = $app->getContainer();
 foreach ($services as $service => $closure) {
     $container[$service] = $closure;
 }
-
+/*
 if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
     $app->add(new \Slim\Middleware\JwtAuthentication([
         'secure' => false,
@@ -51,6 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] != 'OPTIONS') {
             return $response->write('Authentication Error');
         },
     ]));
-}
+}*/
 
 $app->run();

@@ -16,16 +16,20 @@ class ModuleController extends Api
      *
      * @return Response
      */
+
     public function getModuleRecords(Request $req, Response $res, $args)
     {
+        $limitedRestNumbers = 10;
         $module = \BeanFactory::getBean($args['module']);
         $return_records = array();
         if (is_object($module)) {
             $records = $module->get_full_list();
 
             if (count($records)) {
-                foreach ($records as $record) {
-                    $return_records[] = $record->toArray();
+                for($x = 0; $x < $limitedRestNumbers; $x++)
+                {
+                //foreach ($records as $record) {
+                    $return_records[] = $records[$x]->toArray();
                 }
             }
         } else {

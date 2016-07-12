@@ -13,19 +13,20 @@ class SearchController extends Api
     {
         global $container;
 
-        $data = $req->getParsedBody();
+        //$data = $req->getParsedBody();
+        $data = $req->getParams();
 
         if (!isset($data['query_string'])) {
             return $this->generateResponse($res, 400, 'Incorrect parameters', 'Failure');
         } else {
-            if ($container['jwt'] !== null && $container['jwt']->userId !== null) {
+            //if ($container['jwt'] !== null && $container['jwt']->userId !== null) {
                 $lib = new SearchLib();
-                $results = $lib->getSearchResults($container['jwt']->userId);
+                $results = $lib->getSearchResults(1);
 
                 return $this->generateResponse($res, 200, $results, 'Success');
-            } else {
-                return $this->generateResponse($res, 401, 'No user id', 'Failure');
-            }
+            //} else {
+            //    return $this->generateResponse($res, 401, 'No user id', 'Failure');
+            //}
         }
     }
 }
