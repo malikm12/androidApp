@@ -538,7 +538,7 @@ public class MainActivity extends AppCompatActivity {
                  */
                 String encodedQuery = URLEncoder.encode(params[0],"utf-8");
                 /**
-                 * URL contains the search query unlike the standard GET request
+                 * URL contains the search parameters and query unlike the standard GET request
                  * (search?search_type=basic&query_string="+encodedQuery).
                  */
 

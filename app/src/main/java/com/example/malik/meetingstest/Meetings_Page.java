@@ -143,11 +143,29 @@ public class Meetings_Page extends AppCompatActivity {
                         JSONObject value = (JSONObject)obj.get(key);
                         JSONArray matches = value.getJSONArray("items");
 
-                        for (int i = 0; i<=matches.length();i++){
-                            JSONObject searchName = matches.getJSONObject(i);
-                            values.add(key +": "+ searchName.getString("summary"));
-                            ids.add(searchName.getString("id"));
-                            keys.add(searchName.getString("moduleName"));
+                        if (key.equals("Case")){
+                            System.out.println("Case not supported");
+                        }
+                        else if (key.equals("Lead")){
+                            System.out.println("Lead not supported");
+                        }
+                         else if (key.equals("Opportunity")){
+                            System.out.println("Opportunity not supported");
+                        }
+                        else if (key.equals("Note")){
+                            System.out.println("Note not supported");
+                        }
+                        else if (key.equals("Call")){
+                            System.out.println("Call not supported");
+                        }
+                        else {
+
+                            for (int i = 0; i < matches.length(); i++) {
+                                JSONObject searchName = matches.getJSONObject(i);
+                                values.add(key + ": " + searchName.getString("summary"));
+                                ids.add(searchName.getString("id"));
+                                keys.add(searchName.getString("moduleName"));
+                            }
                         }
                     } catch (JSONException e) {
                         System.out.println(e);
@@ -333,11 +351,29 @@ public class Meetings_Page extends AppCompatActivity {
                         JSONObject value = (JSONObject)obj.get(key);
                         JSONArray matches = value.getJSONArray("items");
 
-                        for (int i = 0; i<=matches.length();i++){
-                            JSONObject searchName = matches.getJSONObject(i);
-                            values.add(key +": "+ searchName.getString("summary"));
-                            ids.add(searchName.getString("id"));
-                            keys.add(searchName.getString("moduleName"));
+                        if (key.equals("Case")){
+                            System.out.println("Case not supported");
+                        }
+                        else if (key.equals("Lead")){
+                            System.out.println("Lead not supported");
+                        }
+                        else if (key.equals("Opportunity")){
+                            System.out.println("Opportunity not supported");
+                        }
+                        else if (key.equals("Note")){
+                            System.out.println("Note not supported");
+                        }
+                        else if (key.equals("Call")){
+                            System.out.println("Call not supported");
+                        }
+                        else {
+
+                            for (int i = 0; i < matches.length(); i++) {
+                                JSONObject searchName = matches.getJSONObject(i);
+                                values.add(key + ": " + searchName.getString("summary"));
+                                ids.add(searchName.getString("id"));
+                                keys.add(searchName.getString("moduleName"));
+                            }
                         }
                     } catch (JSONException e) {
                         System.out.println(e);
