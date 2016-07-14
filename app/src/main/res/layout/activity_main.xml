@@ -81,6 +81,21 @@
         android:layout_alignBottom="@+id/searchButton"
         android:textColor="#ffffff"
         android:background="#3C8DBC"
-        android:gravity="center" />
+        android:gravity="center"
+        android:hint="Type to search..." />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Speak to Search"
+        android:id="@+id/textView"
+        android:layout_marginLeft="28dp"
+        android:layout_marginStart="28dp"
+        android:layout_alignBottom="@+id/btnMic"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="18dp"
+        android:textColor="#ffffff" />
 
 </RelativeLayout>

@@ -357,6 +357,7 @@ public class MainActivity extends AppCompatActivity {
     private void command(String words){
 
         String[] s = decompose(words);
+        String searchTerm = "";
 
         AsyncRestRequest restcall = new AsyncRestRequest();
         SearchRequested searchRequested = new SearchRequested();
@@ -372,7 +373,12 @@ public class MainActivity extends AppCompatActivity {
             restcall.execute("Meetings");
         }
         else if (s[0].equals("search")){
-            searchRequested.execute(s[1],s[2]);
+            for (int i = 1; i<s.length; i++){
+                searchTerm += s[i] + " ";
+            }
+            searchTerm = searchTerm.trim();
+            searchRequested.execute(searchTerm);
+            String did = "";
         }
     }
 

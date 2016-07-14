@@ -529,6 +529,7 @@ public class Meetings_Page extends AppCompatActivity {
                             content += fields.getString("parent_name") + "\n";
                             content += fields.getString("name") + "\n";
                             content += fields.getString("assigned_user_name") + "\n";
+                            content += fields.getString("date_start") + "\n";
                             content += fields.getString("description") + "\n";
                             content += fields.getString("parent_id") + "\n";
                         }

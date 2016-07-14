@@ -41,8 +41,9 @@
         android:id="@+id/backButton"
         android:textColor="#ffffff"
         android:background="#3C8DBC"
-        android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/editButton"  />
+        android:layout_below="@+id/gMapsButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:layout_width="180dp"
@@ -51,15 +52,10 @@
         android:id="@+id/headerView"
         android:text="informationPanel"
         android:enabled="false"
-        android:focusable="true"
         android:textColor="#000000"
-        android:editable="true"
         android:layout_below="@+id/headerTitle"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:clickable="true"
-        android:linksClickable="false"
-        android:autoLink="web"
         android:background="@android:color/transparent" />
 
     <TextView
@@ -87,8 +83,8 @@
         android:layout_alignParentStart="true" />
 
     <ImageButton
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
         android:id="@+id/gMapsButton"
         android:src="@mipmap/google_maps_icon"
         android:scaleType="centerCrop"
@@ -123,7 +119,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:background="@android:color/transparent"
-        android:enabled="true" />
+        android:enabled="false" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -138,7 +134,7 @@
 
     <ScrollView
         android:layout_width="wrap_content"
-        android:layout_height="160dp"
+        android:layout_height="135dp"
         android:id="@+id/scrollView"
         android:focusable="false"
         android:layout_below="@+id/textView2"
@@ -166,11 +162,11 @@
     </ScrollView>
 
     <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
         android:id="@+id/playAudio"
         android:src="@android:drawable/ic_lock_silent_mode_off"
-        android:layout_below="@+id/scrollView"
+        android:layout_alignTop="@+id/gMapsButton"
         android:layout_toRightOf="@+id/gMapsButton"
         android:layout_toEndOf="@+id/gMapsButton" />
 
@@ -181,8 +177,9 @@
         android:id="@+id/updateButton"
         android:background="#3C8DBC"
         android:textColor="#ffffff"
-        android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/deleteButton" />
+        android:layout_below="@+id/navigateButton"
+        android:layout_toRightOf="@+id/editButton"
+        android:layout_toEndOf="@+id/editButton" />
 
     <Button
         android:layout_width="wrap_content"
@@ -191,8 +188,9 @@
         android:id="@+id/editButton"
         android:background="#3C8DBC"
         android:textColor="#ffffff"
-        android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/updateButton" />
+        android:layout_below="@+id/playAudio"
+        android:layout_toRightOf="@+id/backButton"
+        android:layout_toEndOf="@+id/backButton" />
 
     <Button
         android:layout_width="wrap_content"
@@ -201,7 +199,48 @@
         android:id="@+id/deleteButton"
         android:background="#3C8DBC"
         android:textColor="#ffffff"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_below="@+id/navigateButton"
+        android:layout_toRightOf="@+id/updateButton"
+        android:layout_toEndOf="@+id/updateButton" />
+
+    <ImageButton
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:id="@+id/navigateButton"
+        android:src="@mipmap/navigateoutline"
+        android:scaleType="fitCenter"
+        android:layout_alignTop="@+id/webButton"
+        android:layout_toRightOf="@+id/webButton"
+        android:layout_toEndOf="@+id/webButton" />
+
+    <ImageButton
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:id="@+id/callButton"
+        android:src="@mipmap/callicon"
+        android:layout_alignTop="@+id/playAudio"
+        android:layout_toRightOf="@+id/playAudio"
+        android:layout_toEndOf="@+id/playAudio"
+        android:scaleType="fitCenter" />
+
+    <ImageButton
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:id="@+id/webButton"
+        android:layout_alignTop="@+id/callButton"
+        android:layout_toRightOf="@+id/callButton"
+        android:layout_toEndOf="@+id/callButton"
+        android:src="@mipmap/webdomain"
+        android:scaleType="fitCenter" />
+
+    <ImageButton
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:id="@+id/emailButton"
+        android:layout_alignTop="@+id/callButton"
+        android:layout_toRightOf="@+id/callButton"
+        android:layout_toEndOf="@+id/callButton"
+        android:src="@mipmap/emailicon"
+        android:scaleType="fitCenter" />
+
 </RelativeLayout>

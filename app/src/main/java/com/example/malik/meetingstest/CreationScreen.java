@@ -180,6 +180,8 @@ public class CreationScreen extends AppCompatActivity {
                 json = jsonObject.toString();
                 StringEntity se = new StringEntity(json);
                 httpPOST.setEntity(se);
+                httpPOST.setHeader("Accept", "application/json");
+                httpPOST.setHeader("Content-type", "application/json");
 
                 HttpResponse httpResponse = httpclient.execute(httpPOST);
                 responseCode = httpResponse.getStatusLine().getStatusCode();

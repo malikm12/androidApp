@@ -38,8 +38,9 @@ import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 public class AccountResult extends AppCompatActivity {
 
     private Button backButton,updateButton, editButton, deleteButton;
-    private ImageButton gMapsButton, playAudio;
-    private TextView infoViewer, titleViewer, headerView, moduleView, headerTitle, bonusView, textView2, contactTitle;
+    private ImageButton gMapsButton, playAudio, navigateButton, callButton, webButton,emailButton;
+    private TextView infoViewer, titleViewer, moduleView, headerTitle, textView2, contactTitle;
+    private EditText bonusView, headerView;
     private String words,body = "", moduleTitle,parentID = "", dailyIP = "http://192.168.1.26";
     public final static String EXTRA_MESSAGE = "com.example.malik.meetingstest.MESSAGE";
     public final static String EXTRA_MESSAGE1 = "com.example.malik.meetingstest.MESSAGE1";
@@ -73,7 +74,7 @@ public class AccountResult extends AppCompatActivity {
         headerTitle = (TextView)findViewById(R.id.headerTitle);
         headerView = (EditText) findViewById(R.id.headerView);
         contactTitle = (TextView) findViewById(R.id.contactTitle);
-        bonusView = (TextView) findViewById(R.id.bonusView);
+        bonusView = (EditText) findViewById(R.id.bonusView);
         textView2 = (TextView) findViewById(R.id.textView2);
         infoViewer = (EditText) findViewById(R.id.infoViewer);
         backButton = (Button)findViewById(R.id.backButton);
@@ -87,27 +88,20 @@ public class AccountResult extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (isNetworkAvailable()==false){
                     toaster(null);
                 }
-                else {
+               else{
+                   headerView.setEnabled(true);
+                   bonusView.setEnabled(true);
+                   titleViewer.setEnabled(true);
+                   infoViewer.setEnabled(true);
+                   updateButton.setClickable(true);
+                   editButton.setClickable(false);
 
-                    headerView.setEnabled(true);
-                    if (moduleTitle.equals("Accounts")) {
-                        infoViewer.setEnabled(false);
 
-                    }
-
-                    else if (moduleTitle.equals("Contacts")) {
-                        infoViewer.setEnabled(false);
-                    }
-
-                    else{
-                        infoViewer.setEnabled(true);
-                        updateButton.setClickable(true);
-                        editButton.setClickable(false);
-                    }
-                }
+               }
             }
         });
 
@@ -120,6 +114,7 @@ public class AccountResult extends AppCompatActivity {
                 }
                 else {
                     headerView.setEnabled(false);
+                    bonusView.setEnabled(false);
                     infoViewer.setEnabled(false);
                     updateButton.setClickable(false);
                     editButton.setClickable(true);
@@ -168,7 +163,8 @@ public class AccountResult extends AppCompatActivity {
         }
         else if (moduleTitle.equals("Meetings")){
             moduleView.setText("Meeting:");
-            headerTitle.setText("Subject:");
+            headerTitle.setText("Date & Time");
+            headerView.setText(bits[3]);
             contactTitle.setText("Contact:");
             bonusView.setText(bits[2]);
             textView2.setText("Notes:");
@@ -181,21 +177,6 @@ public class AccountResult extends AppCompatActivity {
             textView2.setText("Phone:");
         }
 
-        if (contactTitle.getText().equals("Phone:")){
-            bonusView.setAutoLinkMask(Linkify.PHONE_NUMBERS);
-            bonusView.setFocusable(false);
-            bonusView.setEnabled(true);
-            bonusView.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick (View v){
-                    Intent diallerIntent = new Intent(Intent.ACTION_DIAL);
-                    diallerIntent.setData(Uri.parse("tel:"+bonusView.getText().toString()));
-                    startActivity(diallerIntent);
-                }
-            });
-
-        }
-
         if (textView2.getText().equals("Address:")) {
                 for (int i = 3; i < bits.length-1; i++) {
                     body += bits[i] + "\n";
@@ -203,28 +184,13 @@ public class AccountResult extends AppCompatActivity {
         }
 
         else if (textView2.getText().equals("Notes:")) {
-                for (int i = 3; i < bits.length - 1; i++) {
+                for (int i = 4; i < bits.length - 1; i++) {
                     body += bits[i] + "\n";
                 }
         }
 
-        else if (textView2.getText().equals("Phone:")) {
 
-            body += bits[3];
-            infoViewer.setAutoLinkMask(Linkify.PHONE_NUMBERS);
-            infoViewer.setFocusable(false);
-            infoViewer.setEnabled(true);
-            infoViewer.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick (View v){
-                        Intent diallerIntent = new Intent(Intent.ACTION_DIAL);
-                        diallerIntent.setData(Uri.parse("tel:"+infoViewer.getText().toString()));
-                        startActivity(diallerIntent);
-                    }
-                });
-
-        }
-            infoViewer.setText(body);
+        infoViewer.setText(body);
 
         playAudio = (ImageButton) findViewById(R.id.playAudio);
         playAudio.setOnClickListener(new View.OnClickListener(){
@@ -241,8 +207,8 @@ public class AccountResult extends AppCompatActivity {
         gMapsButton = (ImageButton) findViewById(R.id.gMapsButton);
         gMapsButton.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick (View v){
-                if(isNetworkAvailable()==false){
+            public void onClick (View v) {
+                if (isNetworkAvailable() == false) {
                     Context context = getApplicationContext();
                     CharSequence text = "Maps not available offline";
                     int duration = Toast.LENGTH_SHORT;
@@ -251,14 +217,93 @@ public class AccountResult extends AppCompatActivity {
                     toast.show();
                 }
                 else {
-                    if (moduleTitle.equals("Contacts")){
+                    if (moduleTitle.equals("Contacts")) {
                         NewMapRequest contactMap = new NewMapRequest();
                         contactMap.execute(parentID);
-                    }
-                    else {
+                    } else {
                         NewDataRequest mapLocation = new NewDataRequest();
                         mapLocation.execute(parentID);
+                        System.out.println(parentID);
                     }
+                }
+            }
+
+
+        });
+
+        callButton = (ImageButton) findViewById(R.id.callButton);
+        callButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick (View v){
+                if(moduleTitle.equals("Meetings")){
+                    CallRequest callRequest = new CallRequest();
+                    callRequest.execute(parentID);
+                }
+                else {
+                    String number = bonusView.getText().toString();
+                    Intent diallerIntent = new Intent(Intent.ACTION_DIAL);
+                    diallerIntent.setData(Uri.parse("tel:" + number));
+                    startActivity(diallerIntent);
+                }
+            }
+        });
+
+        emailButton = (ImageButton) findViewById(R.id.emailButton);
+        emailButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick (View v){
+                if (moduleTitle.equals("Contacts")) {
+                    String emailAddress = headerView.getText().toString();
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("text/plain");
+                    intent.putExtra(intent.EXTRA_EMAIL, emailAddress);
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "Our Meeting");
+                    intent.putExtra(Intent.EXTRA_TEXT, "I am running 5 minutes late");
+                    Intent mailer = Intent.createChooser(intent, null);
+                    startActivity(mailer);
+                }
+                else {
+                    EmailTo emailTo = new EmailTo();
+                    emailTo.execute(parentID);
+                }
+            }
+        });
+
+        webButton = (ImageButton) findViewById(R.id.webButton);
+        webButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick (View v){
+                String url = "http://"+headerView.getText().toString();
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+                browserIntent.setData(Uri.parse(url));
+                startActivity(browserIntent);
+            }
+        });
+
+        if(moduleTitle.equals("Accounts")){
+            emailButton.setVisibility(View.INVISIBLE);
+        }
+
+        navigateButton = (ImageButton) findViewById(R.id.navigateButton);
+        navigateButton.setVisibility(View.INVISIBLE);
+        if (moduleTitle.equals("Meetings")){
+            navigateButton.setVisibility(View.VISIBLE);
+        }
+        navigateButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick (View v){
+                if(isNetworkAvailable()==false){
+                    Context context = getApplicationContext();
+                    CharSequence text = "Navigation not available offline";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+                else {
+                        NewDataRequest mapLocation = new NewDataRequest();
+                        mapLocation.execute(parentID,"navigate to ");
+
                 }
             }
         });
@@ -290,6 +335,7 @@ public class AccountResult extends AppCompatActivity {
         String reader = "";
         String content = "";
         JSONObject fields = null;
+        String result = "";
 
         @Override
         protected String doInBackground(String... params) {
@@ -326,13 +372,19 @@ public class AccountResult extends AppCompatActivity {
             catch (Exception e) {
                 e.printStackTrace();
             }
+            if(params.length == 2){
+                result = "navigate to ";
+            }
 
-            return params[0];
+            return result;
         }
 
 
         @Override
         protected void onPostExecute(String result) {
+            if(result.equals("navigate to ")){
+                content = result + content;
+            }
             onMap(content);
         }
 
@@ -423,7 +475,9 @@ public class AccountResult extends AppCompatActivity {
         String idNum = getIntent().getStringExtra(Meetings_Page.EXTRA_MESSAGE2);
         String module = getIntent().getStringExtra(Meetings_Page.EXTRA_MESSAGE1);
         String updateField = infoViewer.getText().toString();
-        String upateField1 = headerView.getText().toString();
+        String updateField1 = headerView.getText().toString();
+        String updateField2 = bonusView.getText().toString();
+
         int responseCode;
 
         @Override
@@ -433,19 +487,33 @@ public class AccountResult extends AppCompatActivity {
                 HttpClient httpclient = new DefaultHttpClient();
                 // 2. make POST request to the given URL
                 HttpPut httpPUT = new
-                        HttpPut(dailyIP+"/suiteRest/Api/V8/module/" + module +"/" + idNum);
+                        HttpPut("http://dev.suitecrm.com/maliksInstance/Api/V8/module/" + module +"/" + idNum);
                 String json = "";
                 // 3. build jsonObject
                 JSONObject jsonObject = new JSONObject();
                 if (module.equals("Meetings")) {
                     jsonObject.put("description", updateField);
-                    jsonObject.put("name", upateField1);
+                    jsonObject.put("assigned_user_name", updateField2);
                 }
                 else if (module.equals("Accounts")){
-                    jsonObject.put ("website",upateField1);
+                    String [] address = updateField.split("\n");
+                    jsonObject.put ("website",updateField1);
+                    jsonObject.put ("phone_office",updateField2);
+                    jsonObject.put ("billing_address_street",address[0]);
+                    jsonObject.put ("billing_address_city",address[1]);
+                    jsonObject.put ("billing_address_state", address[2]);
+                    jsonObject.put ("billing_address_postalcode", address[3]);
+                    jsonObject.put ("billing_address_country", address[4]);
                 }
                 else if (module.equals("Contacts")){
-                    jsonObject.put("email1",upateField1);
+                    jsonObject.put("email1",updateField1);
+                    String [] address = updateField.split("\n");
+                    jsonObject.put ("website",updateField1);
+                    jsonObject.put ("primary_address_street",address[0]);
+                    jsonObject.put ("primary_address_city",address[1]);
+                    jsonObject.put ("primary_address_state", address[2]);
+                    jsonObject.put ("primary_address_postalcode", address[3]);
+                    jsonObject.put ("primary_address_country", address[4]);
                 }
 
 
@@ -509,7 +577,7 @@ public class AccountResult extends AppCompatActivity {
                 HttpClient httpclient = new DefaultHttpClient();
                 // 2. make POST request to the given URL
                 HttpPut httpPUT = new
-                        HttpPut(dailyIP+"/suiteRest/Api/V8/module/" + module +"/" + idNum);
+                        HttpPut("http://dev.suitecrm.com/maliksInstance/Api/V8/module/" + module +"/" + idNum);
                 String json = "";
                 // 3. build jsonObject
                 JSONObject jsonObject = new JSONObject();
@@ -632,6 +700,144 @@ public class AccountResult extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             displayData(result,dataChunk.toString());
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+
+
+        }
+
+
+        @Override
+        protected void onProgressUpdate(String... text) {
+
+
+        }
+    }
+
+    private class CallRequest extends AsyncTask<String,String,String> {
+
+        String reader = "";
+        String content = "";
+        JSONObject fields = null;
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                URL url = new URL("http://dev.suitecrm.com/maliksInstance/Api/V8/module/Accounts/"+params[0]);
+                HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
+                suiteConnection.setRequestMethod("GET");
+
+
+                if (suiteConnection.getRequestMethod().equals("GET")){
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(suiteConnection.getInputStream()));
+
+                    String line;
+                    // read from the urlconnection via the bufferedreader
+                    while ((line = bufferedReader.readLine()) != null) {
+
+                        reader += (line + "\n");
+                        // System.out.println(line);
+                    }
+
+                    bufferedReader.close();
+
+                    JSONObject jObject = new JSONObject(reader);
+                    fields = jObject.getJSONObject("data");
+                    if (fields!=null) {
+                        content += fields.getString("phone_office") + "\n";
+
+                    }
+                }
+            }
+
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return content;
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            String number = result;
+            Intent diallerIntent = new Intent(Intent.ACTION_DIAL);
+            diallerIntent.setData(Uri.parse("tel:"+number));
+            startActivity(diallerIntent);
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+
+
+        }
+
+
+        @Override
+        protected void onProgressUpdate(String... text) {
+
+
+        }
+    }
+    private class EmailTo extends AsyncTask<String,String,String> {
+
+        String reader = "";
+        String content = "";
+        JSONObject fields = null;
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                URL url = new URL("http://dev.suitecrm.com/maliksInstance/Api/V8/module/Accounts/"+params[0]);
+                HttpURLConnection suiteConnection = (HttpURLConnection) url.openConnection();
+                suiteConnection.setRequestMethod("GET");
+
+
+                if (suiteConnection.getRequestMethod().equals("GET")){
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(suiteConnection.getInputStream()));
+
+                    String line;
+                    // read from the urlconnection via the bufferedreader
+                    while ((line = bufferedReader.readLine()) != null) {
+
+                        reader += (line + "\n");
+                        // System.out.println(line);
+                    }
+
+                    bufferedReader.close();
+
+                    JSONObject jObject = new JSONObject(reader);
+                    fields = jObject.getJSONObject("data");
+                    if (fields!=null) {
+                        content += fields.getString("email_addresses_primary") + "\n";
+
+                    }
+                }
+            }
+
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return content;
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            String emailAddress = result;
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(intent.EXTRA_EMAIL,emailAddress);
+            intent.putExtra(Intent.EXTRA_SUBJECT, "Our Meeting");
+            intent.putExtra(Intent.EXTRA_TEXT, "I am running 5 minutes late");
+            Intent mailer = Intent.createChooser(intent, null);
+            startActivity(mailer);
+
         }
 
 

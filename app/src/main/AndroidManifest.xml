@@ -12,18 +12,23 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Meetings_Page" />
+        <activity android:name=".Meetings_Page"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".AccountResult"
-            android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".CreationScreen"></activity>
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing"
+            android:isScrollContainer="false"/>
+        <activity android:name=".CreationScreen"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>
